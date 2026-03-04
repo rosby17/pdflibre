@@ -348,6 +348,164 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
   .logo-area { width: auto; padding: 0 12px; border-right: none; }
   .search-bar { display: none; }
 }
+
+/* ─── FILE ROW WITH THUMBNAIL ─────────────────────────────────── */
+.frow-thumb {
+  width: 36px; height: 46px; border-radius: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  overflow: hidden; flex-shrink: 0; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted2);
+}
+.frow-thumb canvas {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.frow-thumb.loading::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.5) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.frow-preview-btn {
+  background: none; border: none; color: var(--muted2); cursor: pointer;
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.13s; flex-shrink: 0;
+}
+.frow-preview-btn:hover { background: var(--accent-light); color: var(--accent); }
+
+/* ─── PREVIEW MODAL ─────────────────────────────────── */
+.preview-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(10,8,5,0.82); backdrop-filter: blur(8px);
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.preview-overlay.open { opacity: 1; pointer-events: all; }
+
+.preview-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(26,24,20,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.preview-title {
+  font-family: var(--sans); font-size: 0.88rem; font-weight: 600;
+  color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 10px;
+}
+.preview-page-info {
+  font-family: var(--mono); font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.07);
+  padding: 3px 10px; border-radius: 5px;
+}
+.preview-controls { display: flex; align-items: center; gap: 8px; }
+.preview-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7); border-radius: 8px;
+  width: 32px; height: 32px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.13s; font-family: var(--sans); font-size: 0.8rem;
+}
+.preview-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+.preview-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.preview-close-btn {
+  background: rgba(201,61,11,0.2); border: 1px solid rgba(201,61,11,0.3);
+  color: #f87171; border-radius: 8px;
+  width: 32px; height: 32px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.13s;
+}
+.preview-close-btn:hover { background: rgba(201,61,11,0.35); color: white; }
+
+/* Grid view */
+.preview-body {
+  flex: 1; overflow-y: auto; padding: 24px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+.preview-page-card {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 10px; overflow: hidden;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; flex-direction: column;
+}
+.preview-page-card:hover {
+  border-color: rgba(201,61,11,0.5);
+  background: rgba(201,61,11,0.06);
+  transform: translateY(-2px);
+}
+.preview-page-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(201,61,11,0.2);
+}
+.preview-canvas-wrap {
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px; position: relative;
+}
+.preview-canvas-wrap canvas { display: block; width: 100%; }
+.preview-canvas-wrap.loading {
+  background: #f0ede8;
+}
+.preview-canvas-wrap.loading::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.6) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+.preview-page-label {
+  padding: 7px 10px;
+  font-family: var(--mono); font-size: 0.65rem;
+  color: rgba(255,255,255,0.4); text-align: center;
+}
+
+/* Single page view */
+.preview-single {
+  display: none; flex: 1; overflow-y: auto;
+  align-items: flex-start; justify-content: center;
+  padding: 24px;
+}
+.preview-single.show { display: flex; }
+.preview-grid-wrap { flex: 1; overflow-y: auto; padding: 24px; }
+.preview-grid-wrap.hide { display: none; }
+
+.preview-zoom { display: flex; align-items: center; gap: 6px; }
+.preview-zoom-val { font-family: var(--mono); font-size: 0.72rem; color: rgba(255,255,255,0.5); min-width: 38px; text-align: center; }
+
+/* Result preview */
+.result-preview {
+  margin-top: 14px; display: none;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; background: var(--surface);
+}
+.result-preview.show { display: block; animation: up 0.2s ease; }
+.result-preview-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.result-preview-header span { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.result-preview-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px; padding: 12px;
+}
+.result-thumb {
+  background: var(--surface2); border-radius: 6px; overflow: hidden;
+  border: 1px solid var(--border); aspect-ratio: 0.707;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color 0.13s;
+}
+.result-thumb:hover { border-color: var(--accent); }
+.result-thumb canvas { width: 100%; display: block; }
 </style>
 
 <!-- SVG ICON SYSTEM -->
@@ -659,6 +817,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>Fusion réussie</h4><p id="si-merge">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-merge">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-merge').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-merge"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -705,6 +871,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
         <div class="sc-info"><h4>Division terminée</h4><p id="si-split">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger ZIP</a>
+      </div>
+      
+      <div class="result-preview" id="rp-split">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-split').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
       </div>
       <div class="nudge" id="nd-split"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
@@ -766,6 +940,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>Rotation appliquée</h4><p id="si-rotate">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-rotate">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-rotate').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-rotate"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -807,6 +989,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
         <div class="sc-info"><h4>Compression réussie</h4><p id="si-compress">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      
+      <div class="result-preview" id="rp-compress">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-compress').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
       </div>
       <div class="nudge" id="nd-compress"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
@@ -868,6 +1058,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>Filigrane appliqué</h4><p id="si-watermark">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-watermark">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-watermark').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-watermark"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -919,6 +1117,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>Conversion terminée</h4><p id="si-pdf2jpg">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger ZIP</a>
       </div>
+      
+      <div class="result-preview" id="rp-pdf2jpg">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-pdf2jpg').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-pdf2jpg"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -968,6 +1174,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>PDF créé</h4><p id="si-jpg2pdf">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-jpg2pdf">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-jpg2pdf').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-jpg2pdf"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -1009,6 +1223,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
         <div class="sc-info"><h4>Conversion terminée</h4><p id="si-pdf2word">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger .docx</a>
+      </div>
+      
+      <div class="result-preview" id="rp-pdf2word">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-pdf2word').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
       </div>
       <div class="nudge" id="nd-pdf2word"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
@@ -1061,6 +1283,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>PDF protégé</h4><p id="si-protect">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-protect">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-protect').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-protect"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -1100,6 +1330,14 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <div class="sc-info"><h4>PDF déverrouillé</h4><p id="si-unlock">–</p></div>
         <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
       </div>
+      
+      <div class="result-preview" id="rp-unlock">
+        <div class="result-preview-header">
+          <span>Aperçu du résultat</span>
+          <button onclick="document.getElementById('rp-unlock').classList.remove('show')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;">✕</button>
+        </div>
+        <div class="result-preview-grid"></div>
+      </div>
       <div class="nudge" id="nd-unlock"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
@@ -1107,6 +1345,44 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 </div>
 
 <!-- MODAL -->
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+<!-- PREVIEW MODAL -->
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-header">
+    <div class="preview-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+      <span id="preview-filename">document.pdf</span>
+      <span class="preview-page-info" id="preview-page-info">0 pages</span>
+    </div>
+    <div class="preview-controls">
+      <div class="preview-zoom">
+        <button class="preview-btn" onclick="previewZoom(-0.25)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <span class="preview-zoom-val" id="pv-zoom-val">100%</span>
+        <button class="preview-btn" onclick="previewZoom(0.25)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <button class="preview-btn" id="pv-mode-btn" onclick="previewToggleMode()" title="Vue grille / pleine page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </button>
+      <button class="preview-close-btn" onclick="closePreview()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="preview-grid-wrap" id="pv-grid-wrap">
+    <div class="preview-grid" id="pv-grid"></div>
+  </div>
+  <div class="preview-single" id="pv-single">
+    <canvas id="pv-single-canvas" style="max-width:90vw;max-height:80vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.6);"></canvas>
+  </div>
+</div>
+
 <div class="overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()"><svg width="14" height="14"><use href="#ic-x"/></svg></button>
@@ -1151,27 +1427,223 @@ function addF(t, files) {
   renderF(t);
 }
 
+// ─── PDF PREVIEW SYSTEM ──────────────────────────────────────────────
+const pdfCache = {}; // filename → pdfjsDoc
+let previewDoc = null;
+let previewMode = 'grid'; // 'grid' | 'single'
+let previewPage = 1;
+let previewScale = 1.5;
+let previewZoomLevel = 1.0;
+
+async function getPdfDoc(file) {
+  if (pdfCache[file.name + file.size]) return pdfCache[file.name + file.size];
+  const arrayBuf = await file.arrayBuffer();
+  const doc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+  pdfCache[file.name + file.size] = doc;
+  return doc;
+}
+
+async function renderThumb(file, canvas, pageNum = 1, scale = 0.3) {
+  try {
+    const doc = await getPdfDoc(file);
+    const page = await doc.getPage(pageNum);
+    const vp = page.getViewport({ scale });
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+  } catch(e) { /* silently fail */ }
+}
+
+async function openPreview(t, fileIdx) {
+  const file = store[t]?.[fileIdx];
+  if (!file) return;
+
+  document.getElementById('preview-filename').textContent = file.name;
+  previewDoc = await getPdfDoc(file);
+  const totalPages = previewDoc.numPages;
+  document.getElementById('preview-page-info').textContent = `${totalPages} page${totalPages > 1 ? 's' : ''}`;
+
+  previewMode = 'grid';
+  previewPage = 1;
+  previewZoomLevel = 1.0;
+  document.getElementById('pv-zoom-val').textContent = '100%';
+  document.getElementById('pv-grid-wrap').classList.remove('hide');
+  document.getElementById('pv-single').classList.remove('show');
+
+  // Render grid
+  const grid = document.getElementById('pv-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const card = document.createElement('div');
+    card.className = 'preview-page-card' + (i === 1 ? ' active' : '');
+    card.onclick = () => openSinglePage(i);
+    const wrap = document.createElement('div');
+    wrap.className = 'preview-canvas-wrap loading';
+    const cvs = document.createElement('canvas');
+    wrap.appendChild(cvs);
+    const label = document.createElement('div');
+    label.className = 'preview-page-label';
+    label.textContent = `Page ${i}`;
+    card.appendChild(wrap);
+    card.appendChild(label);
+    grid.appendChild(card);
+
+    // Async render each page
+    (async (pageNum, canvas, wrapper) => {
+      try {
+        const page = await previewDoc.getPage(pageNum);
+        const vp = page.getViewport({ scale: 1.2 });
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        wrapper.classList.remove('loading');
+      } catch(e) {}
+    })(i, cvs, wrap);
+  }
+
+  document.getElementById('previewOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+async function openSinglePage(pageNum) {
+  previewPage = pageNum;
+  previewMode = 'single';
+  document.getElementById('pv-grid-wrap').classList.add('hide');
+  document.getElementById('pv-single').classList.add('show');
+
+  // Update active card
+  document.querySelectorAll('.preview-page-card').forEach((c, i) => {
+    c.classList.toggle('active', i + 1 === pageNum);
+  });
+
+  await renderSinglePage();
+}
+
+async function renderSinglePage() {
+  if (!previewDoc) return;
+  const canvas = document.getElementById('pv-single-canvas');
+  const page = await previewDoc.getPage(previewPage);
+  const scale = previewScale * previewZoomLevel;
+  const vp = page.getViewport({ scale });
+  canvas.width = vp.width;
+  canvas.height = vp.height;
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+}
+
+function previewToggleMode() {
+  if (previewMode === 'grid') {
+    openSinglePage(previewPage);
+  } else {
+    previewMode = 'grid';
+    document.getElementById('pv-grid-wrap').classList.remove('hide');
+    document.getElementById('pv-single').classList.remove('show');
+  }
+}
+
+function previewZoom(delta) {
+  previewZoomLevel = Math.max(0.5, Math.min(3.0, previewZoomLevel + delta));
+  document.getElementById('pv-zoom-val').textContent = Math.round(previewZoomLevel * 100) + '%';
+  if (previewMode === 'single') renderSinglePage();
+}
+
+function closePreview() {
+  document.getElementById('previewOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Open preview for result blob
+async function openResultPreview(blob, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container || blob.type.includes('zip')) return;
+
+  container.classList.add('show');
+  const grid = container.querySelector('.result-preview-grid');
+  grid.innerHTML = '<div style="padding:12px;font-size:0.78rem;color:var(--muted)">Chargement…</div>';
+
+  try {
+    const arrayBuf = await blob.arrayBuffer();
+    const doc = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+    const totalPages = doc.numPages;
+    const max = Math.min(totalPages, 6); // show up to 6 thumbnails
+
+    grid.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+      const thumb = document.createElement('div');
+      thumb.className = 'result-thumb';
+      const cvs = document.createElement('canvas');
+      thumb.appendChild(cvs);
+      if (i === max && totalPages > max) {
+        const more = document.createElement('div');
+        more.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:700;border-radius:5px;';
+        more.textContent = `+${totalPages - max}`;
+        thumb.style.position = 'relative';
+        thumb.appendChild(more);
+      }
+      grid.appendChild(thumb);
+
+      (async (pageNum, canvas) => {
+        const page = await doc.getPage(pageNum);
+        const vp = page.getViewport({ scale: 0.5 });
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      })(i, cvs);
+    }
+
+    const header = container.querySelector('.result-preview-header span');
+    if (header) header.textContent = `${totalPages} page${totalPages > 1 ? 's' : ''} — aperçu`;
+  } catch(e) {
+    grid.innerHTML = '<div style="padding:12px;font-size:0.78rem;color:var(--muted)">Aperçu non disponible</div>';
+  }
+}
+
 function renderF(t) {
   const fl = document.getElementById('fl-' + t);
   const files = store[t] || [];
   const isImg = t === 'jpg2pdf';
+
   fl.innerHTML = files.map((f, i) => `
     <div class="frow">
-      <div class="frow-icon">
-        <svg width="16" height="16"><use href="${isImg ? '#ic-image' : '#ic-file'}"/></svg>
+      <div class="frow-thumb loading" id="thumb-${t}-${i}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
       </div>
       <div class="frow-info">
         <div class="frow-name">${f.name}</div>
-        <div class="frow-meta">${fmt(f.size)}</div>
+        <div class="frow-meta">${fmt(f.size)}${!isImg ? ' · <span style="color:var(--muted2)">chargement…</span>' : ''}</div>
       </div>
+      ${!isImg ? `<button class="frow-preview-btn" onclick="openPreview('${t}',${i})" title="Aperçu">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>` : ''}
       <button class="frow-rm" onclick="rmF('${t}',${i})" title="Supprimer">
         <svg width="12" height="12"><use href="#ic-x"/></svg>
       </button>
     </div>`).join('');
+
   const min = t === 'merge' ? 2 : 1;
   document.getElementById('r-' + t).disabled = files.length < min;
   const ob = document.getElementById('ob-' + t);
   if (ob) ob.classList.toggle('show', files.length > 0);
+
+  // Generate thumbnails asynchronously
+  if (!isImg) {
+    files.forEach((f, i) => {
+      const wrap = document.getElementById(`thumb-${t}-${i}`);
+      if (!wrap) return;
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      wrap.innerHTML = '';
+      wrap.appendChild(cvs);
+      renderThumb(f, cvs, 1, 0.25).then(() => {
+        wrap.classList.remove('loading');
+        // Update meta with page count
+        const meta = fl.querySelectorAll('.frow-meta')[i];
+        if (meta && pdfCache[f.name + f.size]) {
+          pdfCache[f.name + f.size].then ? null :
+            (meta.innerHTML = `${fmt(f.size)} · ${pdfCache[f.name + f.size].numPages} pages`);
+        }
+      });
+    });
+  }
 }
 
 function rmF(t, i) { store[t].splice(i, 1); renderF(t); }
@@ -1361,6 +1833,10 @@ async function run(t) {
       if (nd) nd.classList.add('show');
       btn.disabled = false;
       if (si) si.textContent = (store[t] || []).map(f => f.name).join(', ') || filename;
+
+      // Show result preview
+      const rp = document.getElementById('rp-' + t);
+      if (rp) openResultPreview(blob, 'rp-' + t);
     }, 300);
 
   } catch (err) {
@@ -1395,9 +1871,11 @@ function clr(t) {
   const sc = document.getElementById('sc-' + t);
   const pw = document.getElementById('pw-' + t);
   const nd = document.getElementById('nd-' + t);
+  const rp = document.getElementById('rp-' + t);
   if (sc) sc.classList.remove('show');
   if (pw) pw.classList.remove('show');
   if (nd) nd.classList.remove('show');
+  if (rp) rp.classList.remove('show');
 }
 
 function openLogin(mode) {
@@ -1412,7 +1890,15 @@ function openLogin(mode) {
 }
 
 function closeAuth() { document.getElementById('authOverlay').classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closePreview(); closeAuth(); }
+  if (e.key === 'ArrowRight' && previewMode === 'single' && previewDoc) {
+    if (previewPage < previewDoc.numPages) { previewPage++; renderSinglePage(); }
+  }
+  if (e.key === 'ArrowLeft' && previewMode === 'single' && previewDoc) {
+    if (previewPage > 1) { previewPage--; renderSinglePage(); }
+  }
+});
 </script>
 </body>
 </html>
