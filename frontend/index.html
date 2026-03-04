@@ -506,6 +506,74 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 }
 .result-thumb:hover { border-color: var(--accent); }
 .result-thumb canvas { width: 100%; display: block; }
+/* ─── AUTH TOPBAR STATE ─────────────────────────────────── */
+.user-menu { display: flex; align-items: center; gap: 8px; position: relative; }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: white;
+  font-size: 0.78rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 2px solid transparent;
+  transition: border-color 0.13s;
+  font-family: var(--sans);
+}
+.user-avatar:hover { border-color: var(--accent); }
+.user-name { font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+.user-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow-lg);
+  min-width: 200px; overflow: hidden;
+  opacity: 0; pointer-events: none; transform: translateY(-6px);
+  transition: all 0.15s;
+}
+.user-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+.user-dropdown-head { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.user-dropdown-head .uname { font-size: 0.88rem; font-weight: 700; }
+.user-dropdown-head .uemail { font-size: 0.75rem; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+.user-dropdown-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 16px; cursor: pointer;
+  font-size: 0.84rem; color: var(--muted); font-weight: 500;
+  transition: all 0.1s;
+}
+.user-dropdown-item:hover { background: var(--surface2); color: var(--text); }
+.user-dropdown-item.danger:hover { background: #fee2e2; color: #b91c1c; }
+
+/* ─── AUTH MODAL IMPROVED ─────────────────────────────────── */
+.auth-error {
+  background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px;
+  padding: 8px 12px; font-size: 0.8rem; color: #b91c1c;
+  margin-bottom: 10px; display: none;
+}
+.auth-error.show { display: block; }
+.auth-success {
+  background: var(--green-light); border: 1px solid var(--green-border); border-radius: 8px;
+  padding: 8px 12px; font-size: 0.8rem; color: var(--green);
+  margin-bottom: 10px; display: none;
+}
+.auth-success.show { display: block; }
+.btn-full:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+.auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.auth-divider span { font-size: 0.75rem; color: var(--muted2); }
+
+/* ─── DASHBOARD PANEL ─────────────────────────────────── */
+.history-empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+.history-empty svg { margin: 0 auto 14px; color: var(--muted2); }
+.history-empty h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.history-empty p { font-size: 0.84rem; }
+.hrow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  animation: up 0.15s ease;
+}
+.hrow-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hrow-info { flex: 1; min-width: 0; }
+.hrow-tool { font-size: 0.84rem; font-weight: 700; }
+.hrow-file { font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hrow-date { font-family: var(--mono); font-size: 0.67rem; color: var(--muted2); flex-shrink: 0; }
 </style>
 
 <!-- SVG ICON SYSTEM -->
@@ -646,7 +714,7 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
       <span>Rechercher un outil…</span>
     </div>
   </div>
-  <div class="topbar-right">
+  <div class="topbar-right" id="topbar-right">
     <button class="btn-ghost" onclick="openLogin('login')">Se connecter</button>
     <button class="btn-cta" onclick="openLogin('register')">Créer un compte</button>
   </div>
@@ -696,6 +764,15 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 
     <div class="s-footer">
       <p><strong>∞ Gratuit, toujours</strong>Aucune limite. Vos fichiers ne sont jamais revendus.</p>
+    </div>
+
+    <div id="sidebar-account" style="display:none; margin: 8px 0 0;">
+      <div style="height:1px; background:var(--border); margin: 8px 8px 10px;"></div>
+      <div class="s-label">Mon compte</div>
+      <button class="s-item" id="n-dashboard" onclick="show('dashboard')">
+        <span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+        Historique
+      </button>
     </div>
   </nav>
 
@@ -1341,6 +1418,38 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
       <div class="nudge" id="nd-unlock"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
     </div>
 
+    <!-- DASHBOARD -->
+    <div class="panel" id="p-dashboard">
+      <div class="ph">
+        <div class="ph-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Mon historique</h1>
+          <p>Tous vos fichiers traités, retrouvez-les à tout moment.</p>
+        </div>
+      </div>
+
+      <div id="dashboard-user-card" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;">
+        <div id="dash-avatar" style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:white;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--sans);"></div>
+        <div>
+          <div id="dash-name" style="font-weight:700;font-size:0.95rem;"></div>
+          <div id="dash-email" style="font-size:0.78rem;color:var(--muted);font-family:var(--mono);margin-top:2px;"></div>
+        </div>
+        <button onclick="signOut()" style="margin-left:auto;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--sans);font-size:0.82rem;cursor:pointer;font-weight:500;" onmouseover="this.style.background='#fee2e2';this.style.color='#b91c1c'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">Se déconnecter</button>
+      </div>
+
+      <div class="sec-label">Fichiers traités récemment</div>
+      <div id="history-list" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="history-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          <h3>Aucun fichier traité</h3>
+          <p>Vos prochains traitements apparaîtront ici.</p>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1386,21 +1495,318 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 <div class="overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()"><svg width="14" height="14"><use href="#ic-x"/></svg></button>
-    <span class="modal-badge">Facultatif</span>
-    <h2 id="auth-title">Créer un compte</h2>
-    <p class="sub" id="auth-sub">Un compte vous permet de retrouver l'historique de vos fichiers traités. Vous pouvez continuer sans compte.</p>
-    <div class="ig"><label>Adresse e-mail</label><input class="inp" type="email" placeholder="vous@exemple.com"></div>
-    <div class="ig" id="auth-name-row"><label>Prénom (optionnel)</label><input class="inp" type="text" placeholder="Votre prénom"></div>
-    <div class="ig"><label>Mot de passe</label><input class="inp" type="password" placeholder="••••••••"></div>
-    <button class="btn-full" id="auth-btn">Créer mon compte gratuit</button>
-    <div class="modal-skip">Pas maintenant — <a onclick="closeAuth()">continuer sans compte</a></div>
+    <span class="modal-badge" id="auth-badge">Connexion</span>
+    <h2 id="auth-title">Content de vous revoir</h2>
+    <p class="sub" id="auth-sub">Accédez à votre historique de fichiers traités.</p>
+
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-success" id="auth-success"></div>
+
+    <div class="ig" id="auth-name-row">
+      <label>Prénom</label>
+      <input class="inp" id="auth-name" type="text" placeholder="Votre prénom">
+    </div>
+    <div class="ig">
+      <label>Adresse e-mail</label>
+      <input class="inp" id="auth-email" type="email" placeholder="vous@exemple.com">
+    </div>
+    <div class="ig" id="auth-pass-row">
+      <label>Mot de passe</label>
+      <input class="inp" id="auth-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAuth()">
+    </div>
+    <div id="auth-forgot-row" style="text-align:right;margin-top:-6px;margin-bottom:10px;display:none;">
+      <a onclick="sendResetEmail()" style="font-size:0.78rem;color:var(--accent);cursor:pointer;font-weight:500;">Mot de passe oublié ?</a>
+    </div>
+    <button class="btn-full" id="auth-btn" onclick="submitAuth()">Se connecter</button>
+    <div class="modal-skip" id="auth-switch">
+      Pas de compte ? <a onclick="switchAuthMode('register')">Créer un compte gratuit</a>
+    </div>
+    <div class="modal-skip" id="auth-skip-row">
+      Pas maintenant — <a onclick="closeAuth()">continuer sans compte</a>
+    </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ─── CONFIG ──────────────────────────────────────────────
-// Change this to your deployed backend URL, e.g. https://pdflibre-api.railway.app
 const API_BASE = 'https://pdflibre-production.up.railway.app';
+
+// ── SUPABASE — remplacez ces valeurs par les vôtres ──────
+// supabase.com → votre projet → Settings → API
+const SUPABASE_URL  = 'https://feuykxjoimjhxgdtpvck.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldXlreGpvaW1qaHhnZHRwdmNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MTU5NjUsImV4cCI6MjA4ODE5MTk2NX0.HB-JvYNfrH2pOwnkuA6HCXdJomL0rAVV6D4k0bnbwUQ';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─── AUTH STATE ──────────────────────────────────────────
+let currentUser = null;
+let authMode = 'login'; // 'login' | 'register' | 'reset'
+
+// Listen to auth changes (login, logout, session restore)
+sb.auth.onAuthStateChange(async (event, session) => {
+  currentUser = session?.user ?? null;
+  renderAuthState();
+  if (currentUser) {
+    await loadHistory();
+  }
+});
+
+// ─── RENDER AUTH STATE IN TOPBAR ─────────────────────────
+function renderAuthState() {
+  const topbar = document.getElementById('topbar-right');
+  const sideAcc = document.getElementById('sidebar-account');
+
+  if (currentUser) {
+    const meta = currentUser.user_metadata || {};
+    const name = meta.full_name || meta.name || currentUser.email.split('@')[0];
+    const initials = name.slice(0, 2).toUpperCase();
+    const email = currentUser.email;
+
+    topbar.innerHTML = `
+      <div class="user-menu" id="user-menu">
+        <span class="user-name" onclick="toggleUserMenu()">${name}</span>
+        <div class="user-avatar" onclick="toggleUserMenu()" title="${email}">${initials}</div>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="user-dropdown-head">
+            <div class="uname">${name}</div>
+            <div class="uemail">${email}</div>
+          </div>
+          <div class="user-dropdown-item" onclick="show('dashboard');toggleUserMenu()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Mon historique
+          </div>
+          <div class="user-dropdown-item danger" onclick="signOut()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Se déconnecter
+          </div>
+        </div>
+      </div>`;
+
+    sideAcc.style.display = 'block';
+
+    // Update dashboard user card
+    const dashAvatar = document.getElementById('dash-avatar');
+    const dashName = document.getElementById('dash-name');
+    const dashEmail = document.getElementById('dash-email');
+    if (dashAvatar) dashAvatar.textContent = initials;
+    if (dashName) dashName.textContent = name;
+    if (dashEmail) dashEmail.textContent = email;
+
+  } else {
+    topbar.innerHTML = `
+      <button class="btn-ghost" onclick="openLogin('login')">Se connecter</button>
+      <button class="btn-cta" onclick="openLogin('register')">Créer un compte</button>`;
+    sideAcc.style.display = 'none';
+  }
+}
+
+function toggleUserMenu() {
+  document.getElementById('user-dropdown')?.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#user-menu')) {
+    document.getElementById('user-dropdown')?.classList.remove('open');
+  }
+});
+
+// ─── AUTH MODAL ──────────────────────────────────────────
+function openLogin(mode) {
+  switchAuthMode(mode || 'login');
+  document.getElementById('authOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('auth-email')?.focus(), 100);
+}
+
+function switchAuthMode(mode) {
+  authMode = mode;
+  const nameRow  = document.getElementById('auth-name-row');
+  const passRow  = document.getElementById('auth-pass-row');
+  const forgotRow= document.getElementById('auth-forgot-row');
+  const switchEl = document.getElementById('auth-switch');
+  const skipRow  = document.getElementById('auth-skip-row');
+  const badge    = document.getElementById('auth-badge');
+  const title    = document.getElementById('auth-title');
+  const sub      = document.getElementById('auth-sub');
+  const btn      = document.getElementById('auth-btn');
+
+  clearAuthMessages();
+
+  if (mode === 'login') {
+    badge.textContent = 'Connexion';
+    title.textContent = 'Content de vous revoir';
+    sub.textContent   = 'Accédez à votre historique de fichiers traités.';
+    btn.textContent   = 'Se connecter';
+    nameRow.style.display  = 'none';
+    passRow.style.display  = 'block';
+    forgotRow.style.display= 'block';
+    switchEl.innerHTML = 'Pas de compte ? <a onclick="switchAuthMode(\'register\')">Créer un compte gratuit</a>';
+    skipRow.style.display  = 'block';
+  } else if (mode === 'register') {
+    badge.textContent = 'Inscription';
+    title.textContent = 'Créer un compte gratuit';
+    sub.textContent   = 'Sauvegardez votre historique et retrouvez vos fichiers.';
+    btn.textContent   = 'Créer mon compte';
+    nameRow.style.display  = 'block';
+    passRow.style.display  = 'block';
+    forgotRow.style.display= 'none';
+    switchEl.innerHTML = 'Déjà un compte ? <a onclick="switchAuthMode(\'login\')">Se connecter</a>';
+    skipRow.style.display  = 'block';
+  } else if (mode === 'reset') {
+    badge.textContent = 'Récupération';
+    title.textContent = 'Réinitialiser le mot de passe';
+    sub.textContent   = 'Entrez votre e-mail pour recevoir un lien de réinitialisation.';
+    btn.textContent   = 'Envoyer le lien';
+    nameRow.style.display  = 'none';
+    passRow.style.display  = 'none';
+    forgotRow.style.display= 'none';
+    switchEl.innerHTML = '<a onclick="switchAuthMode(\'login\')">← Retour à la connexion</a>';
+    skipRow.style.display  = 'none';
+  }
+}
+
+function clearAuthMessages() {
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.classList.add('show');
+}
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg; el.classList.add('show');
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email')?.value?.trim();
+  const pass  = document.getElementById('auth-pass')?.value;
+  const name  = document.getElementById('auth-name')?.value?.trim();
+  const btn   = document.getElementById('auth-btn');
+
+  clearAuthMessages();
+  if (!email) return showAuthError('Veuillez saisir votre adresse e-mail.');
+
+  btn.disabled = true;
+  btn.textContent = 'Chargement…';
+
+  try {
+    if (authMode === 'login') {
+      if (!pass) { showAuthError('Mot de passe requis.'); return; }
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      closeAuth();
+
+    } else if (authMode === 'register') {
+      if (!pass || pass.length < 6) { showAuthError('Le mot de passe doit faire au moins 6 caractères.'); return; }
+      const { error } = await sb.auth.signUp({
+        email, password: pass,
+        options: { data: { full_name: name || email.split('@')[0] } }
+      });
+      if (error) throw error;
+      showAuthSuccess('Compte créé ! Vérifiez votre boîte e-mail pour confirmer votre adresse.');
+      btn.disabled = false; btn.textContent = 'Créer mon compte';
+      return;
+
+    } else if (authMode === 'reset') {
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (error) throw error;
+      showAuthSuccess('Lien envoyé ! Vérifiez votre boîte e-mail.');
+      btn.disabled = false; btn.textContent = 'Envoyer le lien';
+      return;
+    }
+  } catch (err) {
+    const msgs = {
+      'Invalid login credentials': 'E-mail ou mot de passe incorrect.',
+      'Email not confirmed': 'Veuillez confirmer votre e-mail avant de vous connecter.',
+      'User already registered': 'Un compte existe déjà avec cet e-mail.',
+    };
+    showAuthError(msgs[err.message] || err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Se connecter'
+      : authMode === 'register' ? 'Créer mon compte' : 'Envoyer le lien';
+  }
+}
+
+async function sendResetEmail() { switchAuthMode('reset'); }
+
+async function signOut() {
+  await sb.auth.signOut();
+  document.getElementById('user-dropdown')?.classList.remove('open');
+  show('home');
+}
+
+function closeAuth() {
+  document.getElementById('authOverlay').classList.remove('open');
+  clearAuthMessages();
+}
+
+// ─── HISTORY ─────────────────────────────────────────────
+async function saveToHistory(tool, filename) {
+  if (!currentUser) return;
+  try {
+    await sb.from('history').insert({
+      user_id: currentUser.id,
+      tool,
+      filename,
+      created_at: new Date().toISOString()
+    });
+    if (document.getElementById('p-dashboard')?.classList.contains('active')) {
+      loadHistory();
+    }
+  } catch(e) { /* silent */ }
+}
+
+async function loadHistory() {
+  if (!currentUser) return;
+  const list = document.getElementById('history-list');
+  if (!list) return;
+
+  try {
+    const { data, error } = await sb
+      .from('history')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error || !data?.length) {
+      list.innerHTML = `<div class="history-empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        <h3>Aucun fichier traité</h3>
+        <p>Vos prochains traitements apparaîtront ici.</p>
+      </div>`;
+      return;
+    }
+
+    const toolLabels = {
+      merge:'Fusionner', split:'Diviser', compress:'Compresser',
+      rotate:'Rotation', pdf2jpg:'PDF → JPG', jpg2pdf:'JPG → PDF',
+      pdf2word:'PDF → Word', watermark:'Filigrane',
+      protect:'Protéger', unlock:'Déverrouiller'
+    };
+
+    list.innerHTML = data.map(h => {
+      const date = new Date(h.created_at);
+      const dateStr = date.toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `<div class="hrow">
+        <div class="hrow-icon">
+          <svg width="15" height="15"><use href="#ic-file"/></svg>
+        </div>
+        <div class="hrow-info">
+          <div class="hrow-tool">${toolLabels[h.tool] || h.tool}</div>
+          <div class="hrow-file">${h.filename}</div>
+        </div>
+        <div class="hrow-date">${dateStr}</div>
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    list.innerHTML = '<div style="padding:16px;font-size:0.82rem;color:var(--muted)">Impossible de charger l\'historique.</div>';
+  }
+}
+
 
 const store = {};
 const cLabels = ['Faible — meilleure qualité','Moyen — équilibré','Élevé — fichier plus petit'];
@@ -1837,6 +2243,10 @@ async function run(t) {
       // Show result preview
       const rp = document.getElementById('rp-' + t);
       if (rp) openResultPreview(blob, 'rp-' + t);
+
+      // Save to history
+      const names = (store[t] || []).map(f => f.name).join(', ') || filename;
+      saveToHistory(t, names);
     }, 300);
 
   } catch (err) {
@@ -1878,18 +2288,7 @@ function clr(t) {
   if (rp) rp.classList.remove('show');
 }
 
-function openLogin(mode) {
-  const isLogin = mode === 'login';
-  document.getElementById('auth-title').textContent = isLogin ? 'Se connecter' : 'Créer un compte';
-  document.getElementById('auth-sub').textContent = isLogin
-    ? 'Retrouvez l\'historique de vos fichiers traités.'
-    : 'Un compte vous permet de retrouver vos fichiers. Vous pouvez continuer sans compte.';
-  document.getElementById('auth-btn').textContent = isLogin ? 'Se connecter' : 'Créer mon compte gratuit';
-  document.getElementById('auth-name-row').style.display = isLogin ? 'none' : 'block';
-  document.getElementById('authOverlay').classList.add('open');
-}
-
-function closeAuth() { document.getElementById('authOverlay').classList.remove('open'); }
+function closeAuth_noop() {} // replaced above
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closePreview(); closeAuth(); }
   if (e.key === 'ArrowRight' && previewMode === 'single' && previewDoc) {
