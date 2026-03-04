@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    docs_url="/docs" if settings.DEBUG else None,
+    docs_url="/docs",   # always on — toggle access via DEBUG env var if needed
     redoc_url=None,
     lifespan=lifespan,
 )
@@ -53,7 +53,7 @@ app.add_middleware(FileSizeMiddleware)
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )

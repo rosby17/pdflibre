@@ -8,7 +8,6 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 FROM python:3.12-slim
 WORKDIR /app
 
-# poppler for pdf2image
 RUN apt-get update && apt-get install -y --no-install-recommends \
     poppler-utils \
     && rm -rf /var/lib/apt/lists/*
@@ -16,11 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /install /usr/local
 COPY app/ ./app/
 
-# Non-root user for security
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
 EXPOSE 8000
 
-# Railway sets $PORT automatically; fallback to 8000
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1
+# Use shell form so $PORT is interpolated correctly by Railway
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
