@@ -90,7 +90,7 @@ svg { display: block; }
 .btn-cta:hover { background: var(--accent2); }
 
 /* ─── LAYOUT ─────────────────────────────────── */
-.shell { display: flex; margin-top: var(--topbar-h); min-height: calc(100vh - var(--topbar-h)); }
+.shell { display: flex; margin-top: var(--topbar-h); min-height: calc(100vh - var(--topbar-h)); width: 100%; overflow-x: hidden; }
 
 /* ─── SIDEBAR ─────────────────────────────────── */
 .sidebar {
@@ -140,7 +140,7 @@ svg { display: block; }
 .s-footer p strong { display: block; font-size: 0.8rem; margin-bottom: 2px; }
 
 /* ─── MAIN ─────────────────────────────────── */
-.main { flex: 1; margin-left: var(--sidebar-w); padding: 28px 32px; }
+.main { flex: 1; min-width: 0; margin-left: var(--sidebar-w); padding: 28px 32px; width: calc(100% - var(--sidebar-w)); }
 
 /* ─── PANELS ─────────────────────────────────── */
 .panel { display: none; }
@@ -156,7 +156,22 @@ svg { display: block; }
   text-transform: uppercase; letter-spacing: 0.12em; margin: 22px 0 10px;
 }
 .sec-label:first-of-type { margin-top: 0; }
-.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; width: 100%; }
+
+/* Grille unifiée avec labels intégrés */
+.tool-grid-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.tgf-label {
+  grid-column: 1 / -1;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--muted2);
+  text-transform: uppercase; letter-spacing: 0.12em;
+  padding-top: 14px;
+}
+.tgf-label:first-child { padding-top: 0; }
 .tcard {
   background: var(--surface); border: 1.5px solid var(--border);
   border-radius: var(--radius); padding: 18px 16px;
@@ -786,8 +801,10 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
         <p>Choisissez un outil — aucune inscription requise.</p>
       </div>
 
-      <div class="sec-label">Organiser</div>
-      <div class="tool-grid">
+      <div class="tool-grid-full">
+
+        <div class="tgf-label">Organiser</div>
+
         <div class="tcard" onclick="show('merge')">
           <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-merge"/></svg></div>
           <h3>Fusionner PDF</h3>
@@ -806,10 +823,9 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
           <p>Faites pivoter les pages de votre PDF.</p>
           <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
         </div>
-      </div>
 
-      <div class="sec-label">Optimiser</div>
-      <div class="tool-grid">
+        <div class="tgf-label">Optimiser</div>
+
         <div class="tcard" onclick="show('compress')">
           <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-compress"/></svg></div>
           <h3>Compresser PDF</h3>
@@ -822,10 +838,9 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
           <p>Ajoutez un texte ou logo en transparence.</p>
           <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
         </div>
-      </div>
 
-      <div class="sec-label">Convertir</div>
-      <div class="tool-grid">
+        <div class="tgf-label">Convertir</div>
+
         <div class="tcard" onclick="show('pdf2jpg')">
           <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-pdf2jpg"/></svg></div>
           <h3>PDF → JPG</h3>
@@ -845,10 +860,9 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
           <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
           <span class="tcard-badge">BÊTA</span>
         </div>
-      </div>
 
-      <div class="sec-label">Sécurité</div>
-      <div class="tool-grid">
+        <div class="tgf-label">Sécurité</div>
+
         <div class="tcard" onclick="show('protect')">
           <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-protect"/></svg></div>
           <h3>Protéger PDF</h3>
@@ -861,6 +875,7 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
           <p>Supprimez la protection d'un PDF verrouillé.</p>
           <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
         </div>
+
       </div>
     </div>
 
