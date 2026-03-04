@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDFLibre — Guide de déploiement</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ec; --surface: #fff; --surface2: #ece8e0; --border: #d5cfc4;
+  --text: #17150f; --muted: #78726a; --muted2: #a09890;
+  --accent: #c93d0b; --accent-light: #fdf0eb; --accent-border: rgba(201,61,11,0.2);
+  --green: #16a34a; --green-light: #f0fdf4; --green-border: rgba(22,163,74,0.2);
+  --blue: #2563eb; --blue-light: #eff6ff; --blue-border: rgba(37,99,235,0.2);
+  --yellow: #d97706; --yellow-light: #fffbeb; --yellow-border: rgba(217,119,6,0.2);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Bricolage Grotesque', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+.header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 18px 40px; display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 10;
+}
+.logo { width:32px; height:32px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+.logo svg { color: white; }
+.header h1 { font-size:1rem; font-weight:800; letter-spacing:-0.02em; }
+.header h1 span { color: var(--accent); }
+.header .tag { font-family:var(--mono); font-size:0.65rem; background:var(--surface2); border:1px solid var(--border); color:var(--muted); padding:3px 8px; border-radius:5px; margin-left:8px; }
+
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 57px); }
+
+.nav {
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 24px 12px; position: sticky; top: 57px; height: calc(100vh - 57px);
+  overflow-y: auto;
+}
+.nav-section { font-family:var(--mono); font-size:0.6rem; color:var(--muted2); text-transform:uppercase; letter-spacing:0.12em; padding:0 8px; margin:16px 0 4px; }
+.nav-section:first-child { margin-top:0; }
+.nav-link { display:block; padding:7px 10px; border-radius:8px; text-decoration:none; color:var(--muted); font-size:0.845rem; font-weight:500; transition:all 0.13s; }
+.nav-link:hover { background:var(--surface2); color:var(--text); }
+.nav-link.active { background:var(--accent-light); color:var(--accent); font-weight:600; }
+
+.content { padding: 40px 48px; max-width: 860px; }
+
+h2 { font-size:1.5rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:6px; }
+h3 { font-size:1.05rem; font-weight:700; letter-spacing:-0.02em; margin:28px 0 10px; }
+p { font-size:0.9rem; color:var(--muted); margin-bottom:12px; line-height:1.7; }
+p strong { color: var(--text); }
+
+.section { margin-bottom: 56px; scroll-margin-top: 80px; }
+.section-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--mono); font-size:0.65rem;
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--muted); padding:4px 10px; border-radius:6px;
+  margin-bottom:12px; text-transform:uppercase; letter-spacing:0.08em;
+}
+
+.step-grid { display:flex; flex-direction:column; gap:0; }
+.step {
+  display:flex; gap:16px; padding:20px 0;
+  border-bottom:1px solid var(--border);
+}
+.step:last-child { border-bottom: none; }
+.step-num {
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:var(--accent); color:white;
+  font-family:var(--mono); font-size:0.75rem; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  margin-top:2px;
+}
+.step-num.done { background: var(--green); }
+.step-body { flex:1; }
+.step-body h4 { font-size:0.92rem; font-weight:700; margin-bottom:4px; }
+.step-body p { font-size:0.84rem; margin-bottom:8px; }
+
+/* Code blocks */
+.code-block {
+  background: #1a1814; border-radius:10px; overflow:hidden;
+  margin: 10px 0; border:1px solid #2d2a26;
+}
+.code-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 14px; background:#211e1a; border-bottom:1px solid #2d2a26;
+}
+.code-lang { font-family:var(--mono); font-size:0.65rem; color:#6b6560; text-transform:uppercase; letter-spacing:0.1em; }
+.code-copy {
+  font-family:var(--mono); font-size:0.65rem; color:#6b6560;
+  background:none; border:none; cursor:pointer; transition:color 0.13s;
+  padding:2px 8px; border-radius:4px;
+}
+.code-copy:hover { color:#c4bfb9; background:#2d2a26; }
+pre {
+  padding:16px 18px; overflow-x:auto; margin:0;
+  font-family:var(--mono); font-size:0.82rem; line-height:1.6; color:#c4bfb9;
+}
+pre .c  { color:#6b6560; }  /* comment */
+pre .k  { color:#e04d18; }  /* keyword */
+pre .s  { color:#4ade80; }  /* string */
+pre .v  { color:#60a5fa; }  /* variable/value */
+
+/* Callouts */
+.callout {
+  padding:14px 16px; border-radius:10px; margin:14px 0;
+  display:flex; gap:10px; align-items:flex-start;
+  font-size:0.855rem; line-height:1.6;
+}
+.callout-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+.callout p { margin:0; color:inherit; font-size:inherit; }
+.callout.info  { background:var(--blue-light);   border:1px solid var(--blue-border);   color:#1d4ed8; }
+.callout.warn  { background:var(--yellow-light);  border:1px solid var(--yellow-border);  color:#92400e; }
+.callout.good  { background:var(--green-light);   border:1px solid var(--green-border);   color:#14532d; }
+.callout.tip   { background:var(--accent-light);  border:1px solid var(--accent-border);  color:#7c1d06; }
+
+/* Env var table */
+.env-table { width:100%; border-collapse:collapse; font-size:0.84rem; margin:10px 0 18px; }
+.env-table th { text-align:left; font-family:var(--mono); font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted2); padding:6px 12px; border-bottom:2px solid var(--border); background:var(--surface2); }
+.env-table td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+.env-table tr:last-child td { border-bottom:none; }
+.env-table .key { font-family:var(--mono); font-size:0.78rem; color:var(--accent); font-weight:600; }
+.env-table .val { font-family:var(--mono); font-size:0.78rem; color:var(--muted); }
+.env-table .desc { color:var(--muted); font-size:0.82rem; }
+
+/* Arch diagram */
+.arch {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:24px; margin:16px 0;
+}
+.arch-flow {
+  display:flex; align-items:center; gap:0; flex-wrap:wrap;
+}
+.arch-box {
+  flex:1; min-width:120px;
+  padding:14px 16px; background:var(--surface2); border-radius:10px;
+  border:1.5px solid var(--border); text-align:center;
+}
+.arch-box .label { font-family:var(--mono); font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted2); margin-bottom:4px; }
+.arch-box .name { font-size:0.88rem; font-weight:700; }
+.arch-box .sub  { font-size:0.72rem; color:var(--muted); margin-top:2px; }
+.arch-box.accent { background:var(--accent-light); border-color:var(--accent); }
+.arch-box.accent .name { color:var(--accent); }
+.arch-arrow { padding:0 10px; color:var(--muted2); font-size:1.2rem; }
+
+/* Tier comparison */
+.tier-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0; }
+.tier-card { padding:16px; border-radius:10px; border:1.5px solid var(--border); background:var(--surface); }
+.tier-card.highlight { border-color:var(--accent); background:var(--accent-light); }
+.tier-name { font-size:0.82rem; font-weight:700; margin-bottom:8px; }
+.tier-card.highlight .tier-name { color:var(--accent); }
+.tier-item { font-size:0.78rem; color:var(--muted); padding:2px 0; display:flex; gap:6px; }
+.tier-item::before { content:"·"; color:var(--muted2); }
+
+hr.div { border:none; border-top:1px solid var(--border); margin:40px 0; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="white"><path d="M5 3h7a4 4 0 0 1 0 8H5V3z"/><path d="M5 11v6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </div>
+  <h1>PDF<span>Libre</span> <span class="tag">Guide déploiement</span></h1>
+</header>
+
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-section">Architecture</div>
+    <a class="nav-link" href="#architecture">Vue d'ensemble</a>
+    <a class="nav-link" href="#scalabilite">Stratégie scalabilité</a>
+
+    <div class="nav-section">Déploiement</div>
+    <a class="nav-link" href="#prereqs">Prérequis</a>
+    <a class="nav-link" href="#github">1. GitHub</a>
+    <a class="nav-link" href="#railway">2. Railway (backend)</a>
+    <a class="nav-link" href="#vercel">3. Vercel (frontend)</a>
+    <a class="nav-link" href="#env-vars">Variables d'env</a>
+    <a class="nav-link" href="#domaine">Domaine custom</a>
+
+    <div class="nav-section">Local</div>
+    <a class="nav-link" href="#local">Dev en local</a>
+
+    <div class="nav-section">Après déploiement</div>
+    <a class="nav-link" href="#monitoring">Monitoring</a>
+    <a class="nav-link" href="#upgrade">Passer à l'échelle</a>
+    <a class="nav-link" href="#checklist">Checklist finale</a>
+  </nav>
+
+  <div class="content">
+
+    <!-- ARCHITECTURE -->
+    <section class="section" id="architecture">
+      <div class="section-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Architecture
+      </div>
+      <h2>Vue d'ensemble</h2>
+      <p>PDFLibre est découpé en deux services indépendants, chacun déployé sur une plateforme gratuite optimale.</p>
+
+      <div class="arch">
+        <div class="arch-flow">
+          <div class="arch-box">
+            <div class="label">Utilisateur</div>
+            <div class="name">Navigateur</div>
+            <div class="sub">HTML/CSS/JS</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box accent">
+            <div class="label">Frontend · Vercel</div>
+            <div class="name">index.html</div>
+            <div class="sub">CDN mondial · HTTPS</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box accent">
+            <div class="label">Backend · Railway</div>
+            <div class="name">FastAPI</div>
+            <div class="sub">Docker · Python 3.12</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box">
+            <div class="label">Traitement</div>
+            <div class="name">pypdf · poppler</div>
+            <div class="sub">fichiers /tmp</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">ℹ️</div>
+        <p><strong>Pas de base de données requise pour le MVP.</strong> Les fichiers traités vivent en mémoire/tmp pendant 1h puis sont supprimés automatiquement. Aucune donnée utilisateur n'est persistée.</p>
+      </div>
+    </section>
+
+    <!-- SCALABILITÉ -->
+    <section class="section" id="scalabilite">
+      <div class="section-badge">📈 Scalabilité</div>
+      <h2>Stratégie de montée en charge</h2>
+      <p>Le backend est conçu pour évoluer sans réécriture. Voici les 3 paliers :</p>
+
+      <div class="tier-grid">
+        <div class="tier-card highlight">
+          <div class="tier-name">🚀 Maintenant (MVP)</div>
+          <div class="tier-item">Railway Starter gratuit</div>
+          <div class="tier-item">1 instance · 512MB RAM</div>
+          <div class="tier-item">Asyncio job queue</div>
+          <div class="tier-item">Fichiers en /tmp</div>
+          <div class="tier-item">~50 req/jour</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-name">📦 Croissance</div>
+          <div class="tier-item">Railway Pro (~$5/mois)</div>
+          <div class="tier-item">Auto-scale 2–4 instances</div>
+          <div class="tier-item">Redis + Celery workers</div>
+          <div class="tier-item">Cloudflare R2 (stockage)</div>
+          <div class="tier-item">~5 000 req/jour</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-name">🏭 Production</div>
+          <div class="tier-item">Kubernetes ou Fly.io</div>
+          <div class="tier-item">N workers indépendants</div>
+          <div class="tier-item">S3 / R2 + CDN</div>
+          <div class="tier-item">Supabase auth</div>
+          <div class="tier-item">Illimité</div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <p>Le code actuel est déjà prêt pour le palier 2 : il suffit de swapper <code>app/jobs/queue.py</code> par une implémentation Redis sans toucher aux routers.</p>
+      </div>
+    </section>
+
+    <!-- PREREQS -->
+    <section class="section" id="prereqs">
+      <div class="section-badge">✅ Prérequis</div>
+      <h2>Avant de commencer</h2>
+      <p>Vous avez besoin de :</p>
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-body">
+            <h4>Un compte GitHub</h4>
+            <p>Gratuit sur <strong>github.com</strong>. Railway et Vercel se connectent via GitHub.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-body">
+            <h4>Un compte Railway</h4>
+            <p>Gratuit sur <strong>railway.app</strong>. Connectez-vous avec GitHub directement.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-body">
+            <h4>Un compte Vercel</h4>
+            <p>Gratuit sur <strong>vercel.com</strong>. Connectez-vous avec GitHub directement.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-body">
+            <h4>Git installé en local</h4>
+            <p>Pour pusher le code. Ou utilisez l'interface web de GitHub (upload de fichiers).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GITHUB -->
+    <section class="section" id="github">
+      <div class="section-badge">🐙 Étape 1</div>
+      <h2>Créer le repo GitHub</h2>
+
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Créer un nouveau repo</h4>
+            <p>Sur github.com → <strong>New repository</strong> → nom : <code>pdflibre</code> → <strong>Public</strong> ou Private → Create.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Dézipper et pusher le projet</h4>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+              <pre>unzip pdflibre-full.zip
+cd pdflibre
+git init
+git add .
+git commit -m <span class="s">"feat: initial PDFLibre MVP"</span>
+git remote add origin https://github.com/<span class="v">VOTRE_USER</span>/pdflibre.git
+git push -u origin main</pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Vérifier la structure</h4>
+            <p>Le repo doit contenir <code>backend/</code>, <code>frontend/</code>, <code>docker-compose.yml</code>, <code>README.md</code>.</p>
+            <div class="callout good"><div class="callout-icon">✅</div><p>Railway et Vercel vont détecter automatiquement la configuration grâce aux fichiers <code>railway.json</code> et la structure du projet.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RAILWAY -->
+    <section class="section" id="railway">
+      <div class="section-badge">🚂 Étape 2</div>
+      <h2>Déployer le backend sur Railway</h2>
+      <p>Railway est la plateforme la plus simple pour déployer du Python/Docker gratuitement.</p>
+
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Créer un nouveau projet</h4>
+            <p>Sur <strong>railway.app</strong> → Dashboard → <strong>New Project</strong> → <strong>Deploy from GitHub repo</strong> → sélectionnez <code>pdflibre</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Configurer le Root Directory</h4>
+            <p>Railway va détecter tout le repo. Vous devez lui dire que le backend est dans un sous-dossier :</p>
+            <p>Settings → <strong>Source</strong> → <strong>Root Directory</strong> → saisir : <code>backend</code></p>
+            <div class="callout warn"><div class="callout-icon">⚠️</div><p>Sans ce paramètre, Railway cherchera le Dockerfile à la racine et échouera.</p></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Ajouter les variables d'environnement</h4>
+            <p>Settings → <strong>Variables</strong> → ajouter :</p>
+            <table class="env-table">
+              <tr><th>Variable</th><th>Valeur</th><th>Note</th></tr>
+              <tr><td class="key">DEBUG</td><td class="val">false</td><td class="desc">Désactive les docs Swagger en prod</td></tr>
+              <tr><td class="key">ALLOWED_ORIGINS</td><td class="val">["https://pdflibre.vercel.app"]</td><td class="desc">À mettre après avoir l'URL Vercel</td></tr>
+              <tr><td class="key">MAX_FILE_SIZE_MB</td><td class="val">100</td><td class="desc">Limite par fichier</td></tr>
+              <tr><td class="key">RATE_LIMIT_RPM</td><td class="val">30</td><td class="desc">Requêtes/min par IP</td></tr>
+              <tr><td class="key">MAX_CONCURRENT_JOBS</td><td class="val">4</td><td class="desc">512MB RAM → max 4</td></tr>
+            </table>
+            <div class="callout info"><div class="callout-icon">ℹ️</div><p>Railway injecte <code>$PORT</code> automatiquement. Le Dockerfile l'utilise déjà.</p></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Lancer le déploiement</h4>
+            <p>Cliquez <strong>Deploy</strong>. Railway va builder l'image Docker (~3 minutes la première fois, poppler est lourd).</p>
+            <p>Suivez les logs en temps réel dans l'onglet <strong>Deployments</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h4>Récupérer l'URL publique</h4>
+            <p>Settings → <strong>Networking</strong> → <strong>Generate Domain</strong> → vous obtenez quelque chose comme :<br><code>https://pdflibre-api-production.up.railway.app</code></p>
+            <p>Testez : <code>https://votre-url.railway.app/health</code> → doit retourner <code>{"status":"ok"}</code></p>
+            <div class="callout good"><div class="callout-icon">✅</div><p>Backend en ligne ! Notez l'URL — vous en avez besoin pour l'étape Vercel.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERCEL -->
+    <section class="section" id="vercel">
+      <div class="section-badge">▲ Étape 3</div>
+      <h2>Déployer le frontend sur Vercel</h2>
+
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Modifier l'URL de l'API dans le frontend</h4>
+            <p>Dans <code>frontend/index.html</code>, trouvez la ligne <code>API_BASE</code> et remplacez par votre URL Railway :</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">javascript</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+              <pre><span class="c">// Avant :</span>
+<span class="k">const</span> API_BASE = window.location.hostname === <span class="s">'localhost'</span> ? ...
+
+<span class="c">// Après :</span>
+<span class="k">const</span> API_BASE = <span class="s">'https://pdflibre-api-production.up.railway.app'</span>;</pre>
+            </div>
+            <p>Commitez et pushez ce changement :</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+              <pre>git add frontend/index.html
+git commit -m <span class="s">"config: set production API URL"</span>
+git push</pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Importer le projet sur Vercel</h4>
+            <p>Sur <strong>vercel.com</strong> → <strong>Add New Project</strong> → importer <code>pdflibre</code> depuis GitHub.</p>
+            <p>Configuration :</p>
+            <table class="env-table">
+              <tr><th>Paramètre</th><th>Valeur</th></tr>
+              <tr><td class="key">Framework Preset</td><td class="val">Other</td></tr>
+              <tr><td class="key">Root Directory</td><td class="val">frontend</td></tr>
+              <tr><td class="key">Build Command</td><td class="val">(laisser vide)</td></tr>
+              <tr><td class="key">Output Directory</td><td class="val">.</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Déployer</h4>
+            <p>Cliquez <strong>Deploy</strong>. Vercel déploie en ~30 secondes. Vous obtenez une URL comme :<br><code>https://pdflibre.vercel.app</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Mettre à jour ALLOWED_ORIGINS sur Railway</h4>
+            <p>Retournez sur Railway → Variables → mettez à jour :</p>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">env</span></div>
+              <pre>ALLOWED_ORIGINS=<span class="s">["https://pdflibre.vercel.app"]</span></pre>
+            </div>
+            <p>Railway redéploiera automatiquement.</p>
+            <div class="callout good"><div class="callout-icon">🎉</div><p><strong>Tout est en ligne !</strong> Testez un outil PDF sur votre URL Vercel.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENV VARS -->
+    <section class="section" id="env-vars">
+      <div class="section-badge">⚙️ Configuration</div>
+      <h2>Toutes les variables d'environnement</h2>
+      <p>À configurer dans Railway → Settings → Variables :</p>
+      <table class="env-table">
+        <tr><th>Variable</th><th>Défaut</th><th>Description</th></tr>
+        <tr><td class="key">DEBUG</td><td class="val">false</td><td class="desc">true = active /docs Swagger (dev uniquement)</td></tr>
+        <tr><td class="key">ALLOWED_ORIGINS</td><td class="val">["*"]</td><td class="desc">URLs autorisées par CORS. En prod : votre URL Vercel</td></tr>
+        <tr><td class="key">MAX_FILE_SIZE_MB</td><td class="val">100</td><td class="desc">Limite par fichier uploadé</td></tr>
+        <tr><td class="key">MAX_FILES_PER_REQUEST</td><td class="val">20</td><td class="desc">Nombre max de fichiers par requête</td></tr>
+        <tr><td class="key">FILE_TTL_SECONDS</td><td class="val">3600</td><td class="desc">Durée de vie des fichiers temporaires (1h)</td></tr>
+        <tr><td class="key">RATE_LIMIT_RPM</td><td class="val">30</td><td class="desc">Requêtes par minute par IP</td></tr>
+        <tr><td class="key">MAX_CONCURRENT_JOBS</td><td class="val">4</td><td class="desc">Jobs PDF simultanés (lié à la RAM)</td></tr>
+        <tr><td class="key">TMP_DIR</td><td class="val">/tmp/pdflibre</td><td class="desc">Dossier fichiers temporaires</td></tr>
+      </table>
+    </section>
+
+    <!-- DOMAINE -->
+    <section class="section" id="domaine">
+      <div class="section-badge">🌐 Domaine custom</div>
+      <h2>Ajouter votre propre domaine</h2>
+
+      <h3>Frontend (Vercel)</h3>
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><h4>Vercel → Settings → Domains → Add</h4><p>Saisissez <code>pdflibre.com</code> (ou votre domaine).</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><h4>Configurer le DNS</h4><p>Chez votre registrar, ajoutez un enregistrement CNAME :<br><code>www → cname.vercel-dns.com</code><br>ou A record pour l'apex.</p></div>
+        </div>
+      </div>
+
+      <h3>Backend (Railway)</h3>
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><h4>Railway → Settings → Networking → Custom Domain</h4><p>Saisissez <code>api.pdflibre.com</code>.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><h4>Configurer le DNS</h4><p>CNAME : <code>api → votre-service.railway.app</code></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><h4>Mettre à jour API_BASE dans le frontend</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">js</span></div><pre><span class="k">const</span> API_BASE = <span class="s">'https://api.pdflibre.com'</span>;</pre></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCAL -->
+    <section class="section" id="local">
+      <div class="section-badge">💻 Dev local</div>
+      <h2>Lancer en local</h2>
+
+      <h3>Option A — Docker (recommandé)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre>cd pdflibre
+docker-compose up --build
+<span class="c"># Frontend → http://localhost:3000</span>
+<span class="c"># API docs → http://localhost:8000/docs  (DEBUG=true)</span>
+<span class="c"># Health   → http://localhost:8000/health</span></pre>
+      </div>
+
+      <h3>Option B — Python natif</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre><span class="c"># Installer poppler</span>
+<span class="c"># Ubuntu/Debian:</span>
+sudo apt install poppler-utils
+<span class="c"># macOS:</span>
+brew install poppler
+
+<span class="c"># Backend</span>
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+DEBUG=true uvicorn app.main:app --reload --port 8000
+
+<span class="c"># Frontend — dans un autre terminal</span>
+cd ../frontend
+python -m http.server 3000</pre>
+      </div>
+
+      <h3>Fichier .env local</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre>cp backend/.env.example backend/.env
+<span class="c"># Éditez backend/.env et mettez DEBUG=true</span></pre>
+      </div>
+    </section>
+
+    <!-- MONITORING -->
+    <section class="section" id="monitoring">
+      <div class="section-badge">📊 Monitoring</div>
+      <h2>Surveiller votre app</h2>
+
+      <h3>Railway (built-in)</h3>
+      <p>Railway affiche CPU, RAM, et logs en temps réel dans le dashboard. Configurez des alertes email dans <strong>Settings → Notifications</strong>.</p>
+
+      <h3>Health check endpoint</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre><span class="c"># Réponse attendue :</span>
+curl https://votre-url.railway.app/health
+
+{
+  <span class="s">"status"</span>: <span class="s">"ok"</span>,
+  <span class="s">"version"</span>: <span class="s">"1.0.0"</span>,
+  <span class="s">"max_file_mb"</span>: <span class="v">100</span>,
+  <span class="s">"rate_limit_rpm"</span>: <span class="v">30</span>
+}</pre>
+      </div>
+
+      <h3>Uptime monitoring gratuit</h3>
+      <p>Utilisez <strong>UptimeRobot</strong> (gratuit) pour monitorer <code>/health</code> toutes les 5 minutes et recevoir des alertes.</p>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠️</div>
+        <p><strong>Railway Starter gratuit :</strong> l'app se met en veille après 30 minutes d'inactivité. Le premier appel après inactivité sera lent (~5s cold start). Pour éviter cela : Railway Pro ($5/mois) ou pinger /health toutes les 10min avec UptimeRobot.</p>
+      </div>
+    </section>
+
+    <!-- UPGRADE -->
+    <section class="section" id="upgrade">
+      <div class="section-badge">📈 Passer à l'échelle</div>
+      <h2>Quand vous grandissez</h2>
+
+      <h3>Ajouter Redis pour les jobs (>500 users/jour)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre><span class="c"># Railway → Add Plugin → Redis (gratuit 25MB)</span>
+<span class="c"># Railway injecte automatiquement REDIS_URL</span>
+
+pip install redis celery</pre>
+      </div>
+      <p>Swappez <code>app/jobs/queue.py</code> par une implémentation Celery — les routers n'ont pas besoin de changer.</p>
+
+      <h3>Stockage persistant (fichiers > 1h)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copier</button></div>
+        <pre>pip install boto3
+<span class="c"># Cloudflare R2 : 10GB gratuit, compatible S3</span>
+<span class="c"># Variable : R2_BUCKET, R2_ACCESS_KEY, R2_SECRET_KEY</span></pre>
+      </div>
+
+      <h3>Auth utilisateurs (historique)</h3>
+      <p>Supabase (PostgreSQL + Auth) est gratuit jusqu'à 500MB. SDK Python disponible.</p>
+    </section>
+
+    <!-- CHECKLIST -->
+    <section class="section" id="checklist">
+      <div class="section-badge">✅ Checklist finale</div>
+      <h2>Avant de partager le lien</h2>
+
+      <div class="step-grid">
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>Backend répond sur /health</h4><p><code>curl https://votre-api.railway.app/health</code> retourne 200.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>Frontend charge sans erreur console</h4><p>Ouvrez les DevTools (F12) → onglet Console → aucune erreur CORS.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>Test bout-en-bout : Fusionner 2 PDF</h4><p>Uploadez 2 vrais PDF et téléchargez le résultat.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>Test compression</h4><p>Un PDF lourd doit être sensiblement réduit.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>ALLOWED_ORIGINS configuré</h4><p>Doit contenir exactement votre URL Vercel, pas <code>*</code> en prod.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>DEBUG=false en production</h4><p>Les docs Swagger ne doivent pas être accessibles publiquement.</p></div></div>
+        <div class="step"><div class="step-num">□</div><div class="step-body"><h4>Monitoring UptimeRobot actif</h4><p>Alerte si l'API tombe.</p></div></div>
+      </div>
+
+      <div class="callout good" style="margin-top:24px">
+        <div class="callout-icon">🚀</div>
+        <p><strong>C'est parti !</strong> Votre PDFLibre est en production. Partagez le lien Vercel — ça marche depuis n'importe quel navigateur, sans installation.</p>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'copié ✓';
+    setTimeout(() => btn.textContent = 'copier', 2000);
+  });
+}
+
+// Highlight active nav link on scroll
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDFLibre — Outils PDF gratuits</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ec;
+  --surface: #ffffff;
+  --surface2: #ece8e0;
+  --surface3: #e4dfd5;
+  --border: #d5cfc4;
+  --border2: #c8c1b5;
+  --text: #17150f;
+  --muted: #78726a;
+  --muted2: #a09890;
+  --accent: #c93d0b;
+  --accent2: #e04d18;
+  --accent-light: #fdf0eb;
+  --accent-border: rgba(201,61,11,0.2);
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --radius: 12px;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Bricolage Grotesque', sans-serif;
+  --sidebar-w: 224px;
+  --topbar-h: 52px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* SVG icons inherit color */
+svg { display: block; }
+
+/* ─── TOPBAR ─────────────────────────────────── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px 0 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.logo-area {
+  width: var(--sidebar-w);
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px;
+  border-right: 1px solid var(--border);
+  height: 100%; cursor: pointer;
+}
+.logo-mark {
+  width: 30px; height: 30px;
+  background: var(--accent); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(201,61,11,0.3);
+}
+.logo-text { font-weight: 800; font-size: 1rem; letter-spacing: -0.03em; }
+.logo-text span { color: var(--accent); }
+.topbar-center { flex: 1; display: flex; align-items: center; padding: 0 20px; }
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 12px; width: 280px; cursor: text;
+  transition: border-color 0.15s; color: var(--muted2);
+}
+.search-bar:hover { border-color: var(--border2); }
+.search-bar span { font-size: 0.82rem; font-family: var(--sans); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.btn-ghost {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-family: var(--sans); font-size: 0.82rem;
+  cursor: pointer; transition: all 0.15s; font-weight: 500;
+}
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-cta {
+  padding: 6px 16px; border-radius: 8px; border: none;
+  background: var(--accent); color: white;
+  font-family: var(--sans); font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(201,61,11,0.25);
+}
+.btn-cta:hover { background: var(--accent2); }
+
+/* ─── LAYOUT ─────────────────────────────────── */
+.shell { display: flex; margin-top: var(--topbar-h); min-height: calc(100vh - var(--topbar-h)); }
+
+/* ─── SIDEBAR ─────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--surface); border-right: 1px solid var(--border);
+  position: fixed; top: var(--topbar-h); bottom: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 10px 8px 24px;
+  scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.s-label {
+  font-family: var(--mono); font-size: 0.6rem; color: var(--muted2);
+  text-transform: uppercase; letter-spacing: 0.12em;
+  padding: 0 8px; margin: 16px 0 3px;
+}
+.s-label:first-child { margin-top: 4px; }
+.s-item {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; border-radius: 8px; border: none;
+  background: transparent; color: var(--muted);
+  font-family: var(--sans); font-size: 0.845rem; font-weight: 500;
+  cursor: pointer; transition: all 0.13s; text-align: left;
+}
+.s-item:hover { background: var(--surface2); color: var(--text); }
+.s-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.s-icon {
+  width: 27px; height: 27px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; background: var(--surface2); color: var(--muted);
+  transition: all 0.13s;
+}
+.s-item:hover .s-icon { color: var(--text); }
+.s-item.active .s-icon { background: rgba(201,61,11,0.1); color: var(--accent); }
+.s-new {
+  font-family: var(--mono); font-size: 0.55rem;
+  background: var(--accent); color: white;
+  padding: 2px 5px; border-radius: 3px; margin-left: auto; flex-shrink: 0;
+}
+.s-footer {
+  margin: 20px 8px 0; padding: 12px;
+  background: var(--accent-light); border: 1px solid var(--accent-border);
+  border-radius: 10px;
+}
+.s-footer p { font-size: 0.77rem; color: var(--accent); line-height: 1.5; }
+.s-footer p strong { display: block; font-size: 0.8rem; margin-bottom: 2px; }
+
+/* ─── MAIN ─────────────────────────────────── */
+.main { flex: 1; margin-left: var(--sidebar-w); padding: 28px 32px; max-width: 940px; }
+
+/* ─── PANELS ─────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; animation: up 0.18s ease; }
+@keyframes up { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── HOME GRID ─────────────────────────────────── */
+.home-title { margin-bottom: 24px; }
+.home-title h1 { font-size: 1.4rem; font-weight: 800; letter-spacing:-0.03em; margin-bottom: 4px; }
+.home-title p { font-size: 0.85rem; color: var(--muted); }
+.sec-label {
+  font-family: var(--mono); font-size: 0.6rem; color: var(--muted2);
+  text-transform: uppercase; letter-spacing: 0.12em; margin: 22px 0 10px;
+}
+.sec-label:first-of-type { margin-top: 0; }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(172px, 1fr)); gap: 8px; }
+.tcard {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 18px 16px;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; flex-direction: column; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.tcard:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.tcard-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--surface2); color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.tcard:hover .tcard-icon { background: var(--accent-light); color: var(--accent); }
+.tcard h3 { font-size: 0.875rem; font-weight: 700; letter-spacing:-0.01em; }
+.tcard p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; flex: 1; }
+.tcard-go {
+  font-size: 0.7rem; color: var(--accent); font-weight: 700;
+  font-family: var(--mono); display: flex; align-items: center; gap: 4px;
+}
+.tcard-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 0.55rem; font-family: var(--mono);
+  background: var(--accent); color: white;
+  padding: 2px 6px; border-radius: 4px;
+}
+
+/* ─── PANEL HEADER ─────────────────────────────────── */
+.ph { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.ph-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--text);
+}
+.ph-body { flex: 1; }
+.ph-body h1 { font-size: 1.25rem; font-weight: 800; letter-spacing:-0.02em; margin-bottom: 3px; }
+.ph-body p { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+.ph-back {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-family: var(--sans); font-size: 0.78rem;
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 0 6px; transition: color 0.13s; font-weight: 500;
+}
+.ph-back:hover { color: var(--accent); }
+
+/* ─── DROP ZONE ─────────────────────────────────── */
+.dz {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 44px 32px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--surface); position: relative;
+}
+.dz:hover, .dz.over { border-color: var(--accent); background: var(--accent-light); }
+.dz input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.dz-icon {
+  width: 50px; height: 50px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px; color: var(--muted);
+  box-shadow: var(--shadow-sm); transition: all 0.2s;
+}
+.dz:hover .dz-icon, .dz.over .dz-icon { background: white; color: var(--accent); border-color: var(--accent-border); }
+.dz h3 { font-size: 0.96rem; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.01em; }
+.dz p { font-size: 0.8rem; color: var(--muted); }
+.dz-hint { display: flex; gap: 5px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.fmt-tag { font-family: var(--mono); font-size: 0.65rem; padding: 3px 8px; border-radius: 5px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+
+/* ─── FILE LIST ─────────────────────────────────── */
+.fl { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+.frow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 9px;
+  animation: up 0.15s ease; transition: border-color 0.13s;
+}
+.frow:hover { border-color: var(--border2); }
+.frow-icon { color: var(--accent); flex-shrink: 0; }
+.frow-info { flex: 1; min-width: 0; }
+.frow-name { font-size: 0.84rem; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.frow-meta { font-family: var(--mono); font-size: 0.67rem; color: var(--muted); margin-top: 1px; }
+.frow-rm {
+  background: none; border: none; color: var(--muted2); cursor: pointer;
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.13s; flex-shrink: 0;
+}
+.frow-rm:hover { background: #fee2e2; color: #b91c1c; }
+
+/* ─── OPTIONS BOX ─────────────────────────────────── */
+.ob { margin-top: 12px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: none; }
+.ob.show { display: block; animation: up 0.15s ease; }
+.ob-title { font-family: var(--mono); font-size: 0.6rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+.ob-row { margin-bottom: 14px; }
+.ob-row:last-child { margin-bottom: 0; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { padding: 6px 13px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); font-size: 0.82rem; cursor: pointer; transition: all 0.13s; font-family: var(--sans); font-weight: 500; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.sel { border-color: var(--accent); background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.slider-row { display: flex; align-items: center; gap: 12px; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
+.slider-val { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-weight: 600; min-width: 120px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; }
+.toggle-row label { font-size: 0.85rem; font-weight: 500; }
+.toggle-wrap { position: relative; width: 36px; height: 20px; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border2); border-radius: 20px; cursor: pointer; transition: 0.2s; }
+.toggle-slider:before { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; left: 3px; top: 3px; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+input:checked + .toggle-slider { background: var(--accent); }
+input:checked + .toggle-slider:before { transform: translateX(16px); }
+.inp { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); font-family: var(--sans); font-size: 0.85rem; color: var(--text); transition: border-color 0.13s; outline: none; }
+.inp:focus { border-color: var(--accent); }
+.inp::placeholder { color: var(--muted2); }
+
+/* ─── ROTATE GRID ─────────────────────────────────── */
+.rotate-grid { display: flex; gap: 8px; }
+.ropt { flex: 1; padding: 12px 8px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); cursor: pointer; text-align: center; transition: all 0.13s; }
+.ropt:hover { border-color: var(--accent); background: var(--accent-light); }
+.ropt.sel { border-color: var(--accent); background: var(--accent-light); }
+.ropt-icon { display: flex; justify-content: center; color: var(--muted); margin-bottom: 6px; transition: color 0.13s; }
+.ropt:hover .ropt-icon, .ropt.sel .ropt-icon { color: var(--accent); }
+.ropt-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.ropt:hover .ropt-label, .ropt.sel .ropt-label { color: var(--accent); }
+
+/* ─── WATERMARK PREVIEW ─────────────────────────────────── */
+.wm-preview { margin-top: 10px; padding: 28px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+.wm-text { font-size: 1.5rem; font-weight: 800; color: rgba(201,61,11,0.25); transform: rotate(-25deg); letter-spacing: 0.08em; user-select: none; }
+
+/* ─── ACTION ROW ─────────────────────────────────── */
+.ar { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-run {
+  padding: 9px 20px; border-radius: 9px; border: none;
+  background: var(--accent); color: white;
+  font-family: var(--sans); font-size: 0.875rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 3px 10px rgba(201,61,11,0.25);
+  display: flex; align-items: center; gap: 7px;
+}
+.btn-run:hover:not(:disabled) { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 5px 14px rgba(201,61,11,0.3); }
+.btn-run:disabled { opacity: 0.38; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-cl { padding: 9px 16px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: var(--sans); font-size: 0.85rem; cursor: pointer; transition: all 0.13s; font-weight: 500; }
+.btn-cl:hover { background: var(--surface2); color: var(--text); }
+.fn { font-family: var(--mono); font-size: 0.7rem; color: var(--muted2); margin-left: auto; }
+
+/* ─── PROGRESS ─────────────────────────────────── */
+.pw { display: none; margin-top: 14px; }
+.pw.show { display: block; animation: up 0.15s ease; }
+.pt { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+.pf { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.18s ease; }
+.pm { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+
+/* ─── SUCCESS ─────────────────────────────────── */
+.sc { display: none; margin-top: 14px; padding: 16px 20px; background: var(--green-light); border: 1.5px solid rgba(22,163,74,0.2); border-radius: var(--radius); align-items: center; gap: 14px; }
+.sc.show { display: flex; animation: up 0.2s ease; }
+.sc-icon { color: var(--green); flex-shrink: 0; }
+.sc-info { flex: 1; min-width: 0; }
+.sc-info h4 { font-size: 0.9rem; font-weight: 700; color: var(--green); margin-bottom: 2px; }
+.sc-info p { font-size: 0.78rem; color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.btn-dl { padding: 8px 16px; border-radius: 8px; border: none; background: var(--green); color: white; font-family: var(--sans); font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; flex-shrink: 0; transition: all 0.13s; }
+.btn-dl:hover { background: #15803d; }
+
+/* ─── NUDGE ─────────────────────────────────── */
+.nudge { display: none; margin-top: 8px; font-size: 0.78rem; color: var(--muted); padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+.nudge.show { display: block; }
+.nudge a { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: none; }
+
+/* ─── MODAL ─────────────────────────────────── */
+.overlay { position: fixed; inset: 0; z-index: 200; background: rgba(15,12,8,0.45); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--surface); border-radius: 18px; padding: 32px; width: 380px; max-width: calc(100vw - 32px); box-shadow: var(--shadow-lg); position: relative; transform: translateY(12px); transition: transform 0.25s ease; border: 1px solid var(--border); }
+.overlay.open .modal { transform: translateY(0); }
+.modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: none; width: 28px; height: 28px; border-radius: 7px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.13s; }
+.modal-close:hover { background: var(--surface3); color: var(--text); }
+.modal-badge { display: inline-block; font-family: var(--mono); font-size: 0.62rem; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 3px 8px; border-radius: 5px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.modal h2 { font-size: 1.3rem; font-weight: 800; letter-spacing:-0.02em; margin-bottom: 6px; }
+.modal p.sub { font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.ig { margin-bottom: 12px; }
+.ig label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; }
+.btn-full { width: 100%; padding: 11px; border-radius: 10px; border: none; background: var(--accent); color: white; font-family: var(--sans); font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 8px; transition: all 0.15s; box-shadow: 0 3px 10px rgba(201,61,11,0.25); }
+.btn-full:hover { background: var(--accent2); }
+.modal-skip { text-align: center; margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
+.modal-skip a { color: var(--accent); cursor: pointer; font-weight: 600; }
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 16px; }
+  .topbar { padding: 0 12px 0 0; }
+  .logo-area { width: auto; padding: 0 12px; border-right: none; }
+  .search-bar { display: none; }
+}
+</style>
+
+<!-- SVG ICON SYSTEM -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- merge: layers -->
+  <symbol id="ic-merge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12h20M12 2l4 4-4 4M12 22l4-4-4-4"/>
+    <path d="M2 6h6M2 18h6M16 6h6M16 18h6"/>
+  </symbol>
+  <!-- split: scissors -->
+  <symbol id="ic-split" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+    <path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/>
+  </symbol>
+  <!-- rotate -->
+  <symbol id="ic-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>
+  </symbol>
+  <!-- compress: archive/zip -->
+  <symbol id="ic-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="8 6 12 2 16 6"/><polyline points="8 18 12 22 16 18"/>
+    <line x1="12" y1="2" x2="12" y2="22"/>
+    <path d="M3 9h18M3 15h18"/>
+  </symbol>
+  <!-- watermark: stamp/badge -->
+  <symbol id="ic-watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+    <path d="M2 17l10 5 10-5"/>
+    <path d="M2 12l10 5 10-5"/>
+  </symbol>
+  <!-- pdf2jpg: image out of doc -->
+  <symbol id="ic-pdf2jpg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </symbol>
+  <!-- jpg2pdf: images to doc -->
+  <symbol id="ic-jpg2pdf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/>
+    <circle cx="9" cy="10" r="1.2"/>
+  </symbol>
+  <!-- pdf2word: doc with lines -->
+  <symbol id="ic-pdf2word" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="8" y1="13" x2="16" y2="13"/>
+    <line x1="8" y1="17" x2="16" y2="17"/>
+    <line x1="8" y1="9" x2="10" y2="9"/>
+  </symbol>
+  <!-- protect: lock -->
+  <symbol id="ic-protect" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </symbol>
+  <!-- unlock: unlocked padlock -->
+  <symbol id="ic-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+  </symbol>
+  <!-- search -->
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+  </symbol>
+  <!-- logo P -->
+  <symbol id="ic-logo" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 3h7a4 4 0 0 1 0 8H5V3z" fill="white" stroke="none"/>
+    <path d="M5 11v6" stroke="white"/>
+  </symbol>
+  <!-- file generic -->
+  <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+    <polyline points="13 2 13 9 20 9"/>
+  </symbol>
+  <!-- image file -->
+  <symbol id="ic-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </symbol>
+  <!-- download -->
+  <symbol id="ic-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </symbol>
+  <!-- check circle -->
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22 4 12 14.01 9 11.01"/>
+  </symbol>
+  <!-- x close -->
+  <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </symbol>
+  <!-- arrow left -->
+  <symbol id="ic-arrowleft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+  </symbol>
+  <!-- arrow right small -->
+  <symbol id="ic-arrowright" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+  </symbol>
+  <!-- rotate cw -->
+  <symbol id="ic-rotatecw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+  </symbol>
+  <!-- rotate ccw -->
+  <symbol id="ic-rotateccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="1 4 1 10 7 10"/>
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+  </symbol>
+  <!-- flip -->
+  <symbol id="ic-flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3"/>
+    <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+    <line x1="12" y1="20" x2="12" y2="4"/>
+  </symbol>
+  <!-- info -->
+  <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </symbol>
+</svg>
+
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo-area" onclick="show('home')">
+    <div class="logo-mark">
+      <svg width="18" height="18"><use href="#ic-logo"/></svg>
+    </div>
+    <span class="logo-text">PDF<span>Libre</span></span>
+  </div>
+  <div class="topbar-center">
+    <div class="search-bar">
+      <svg width="14" height="14"><use href="#ic-search"/></svg>
+      <span>Rechercher un outil…</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-ghost" onclick="openLogin('login')">Se connecter</button>
+    <button class="btn-cta" onclick="openLogin('register')">Créer un compte</button>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="s-label">Organiser</div>
+    <button class="s-item" id="n-merge" onclick="show('merge')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-merge"/></svg></span> Fusionner PDF
+    </button>
+    <button class="s-item" id="n-split" onclick="show('split')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-split"/></svg></span> Diviser PDF
+    </button>
+    <button class="s-item" id="n-rotate" onclick="show('rotate')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-rotate"/></svg></span> Rotation
+    </button>
+
+    <div class="s-label">Optimiser</div>
+    <button class="s-item" id="n-compress" onclick="show('compress')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-compress"/></svg></span> Compresser PDF
+    </button>
+    <button class="s-item" id="n-watermark" onclick="show('watermark')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-watermark"/></svg></span> Filigrane
+    </button>
+
+    <div class="s-label">Convertir</div>
+    <button class="s-item" id="n-pdf2jpg" onclick="show('pdf2jpg')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-pdf2jpg"/></svg></span> PDF → JPG
+    </button>
+    <button class="s-item" id="n-jpg2pdf" onclick="show('jpg2pdf')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-jpg2pdf"/></svg></span> JPG → PDF
+    </button>
+    <button class="s-item" id="n-pdf2word" onclick="show('pdf2word')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-pdf2word"/></svg></span> PDF → Word
+      <span class="s-new">BÊTA</span>
+    </button>
+
+    <div class="s-label">Sécurité</div>
+    <button class="s-item" id="n-protect" onclick="show('protect')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-protect"/></svg></span> Protéger PDF
+    </button>
+    <button class="s-item" id="n-unlock" onclick="show('unlock')">
+      <span class="s-icon"><svg width="15" height="15"><use href="#ic-unlock"/></svg></span> Déverrouiller PDF
+    </button>
+
+    <div class="s-footer">
+      <p><strong>∞ Gratuit, toujours</strong>Aucune limite. Vos fichiers ne sont jamais revendus.</p>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="panel active" id="p-home">
+      <div class="home-title">
+        <h1>Outils PDF gratuits & illimités</h1>
+        <p>Choisissez un outil — aucune inscription requise.</p>
+      </div>
+
+      <div class="sec-label">Organiser</div>
+      <div class="tool-grid">
+        <div class="tcard" onclick="show('merge')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-merge"/></svg></div>
+          <h3>Fusionner PDF</h3>
+          <p>Combinez plusieurs PDF en un seul fichier.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('split')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-split"/></svg></div>
+          <h3>Diviser PDF</h3>
+          <p>Extrayez des pages ou découpez par intervalles.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('rotate')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-rotate"/></svg></div>
+          <h3>Rotation</h3>
+          <p>Faites pivoter les pages de votre PDF.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+      </div>
+
+      <div class="sec-label">Optimiser</div>
+      <div class="tool-grid">
+        <div class="tcard" onclick="show('compress')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-compress"/></svg></div>
+          <h3>Compresser PDF</h3>
+          <p>Réduisez la taille sans perte visible de qualité.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('watermark')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-watermark"/></svg></div>
+          <h3>Filigrane</h3>
+          <p>Ajoutez un texte ou logo en transparence.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+      </div>
+
+      <div class="sec-label">Convertir</div>
+      <div class="tool-grid">
+        <div class="tcard" onclick="show('pdf2jpg')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-pdf2jpg"/></svg></div>
+          <h3>PDF → JPG</h3>
+          <p>Exportez chaque page en image haute qualité.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('jpg2pdf')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-jpg2pdf"/></svg></div>
+          <h3>JPG → PDF</h3>
+          <p>Assemblez vos images en un PDF ordonné.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('pdf2word')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-pdf2word"/></svg></div>
+          <h3>PDF → Word</h3>
+          <p>Convertissez en document .docx éditable.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+          <span class="tcard-badge">BÊTA</span>
+        </div>
+      </div>
+
+      <div class="sec-label">Sécurité</div>
+      <div class="tool-grid">
+        <div class="tcard" onclick="show('protect')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-protect"/></svg></div>
+          <h3>Protéger PDF</h3>
+          <p>Verrouillez avec un mot de passe robuste.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+        <div class="tcard" onclick="show('unlock')">
+          <div class="tcard-icon"><svg width="20" height="20"><use href="#ic-unlock"/></svg></div>
+          <h3>Déverrouiller PDF</h3>
+          <p>Supprimez la protection d'un PDF verrouillé.</p>
+          <div class="tcard-go">Utiliser <svg width="10" height="10"><use href="#ic-arrowright"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MERGE -->
+    <div class="panel" id="p-merge">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-merge"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Fusionner des PDF</h1>
+          <p>Ajoutez plusieurs fichiers et assemblez-les en un seul document.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-merge" ondragover="dzEv('merge','over',event)" ondrop="dzEv('merge','drop',event)" ondragleave="dzEv('merge','out',event)">
+        <input type="file" accept=".pdf" multiple onchange="addF('merge',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez vos PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-merge"></div>
+      <div class="ar">
+        <button class="btn-run" id="r-merge" onclick="run('merge')" disabled>
+          <svg width="15" height="15"><use href="#ic-merge"/></svg> Fusionner
+        </button>
+        <button class="btn-cl" onclick="clr('merge')">Effacer</button>
+        <span class="fn">min. 2 fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-merge"><div class="pt"><div class="pf" id="pf-merge"></div></div><div class="pm" id="pm-merge">Traitement…</div></div>
+      <div class="sc" id="sc-merge">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Fusion réussie</h4><p id="si-merge">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-merge"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- SPLIT -->
+    <div class="panel" id="p-split">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-split"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Diviser un PDF</h1>
+          <p>Extrayez des pages précises ou découpez par intervalles.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-split" ondragover="dzEv('split','over',event)" ondrop="dzEv('split','drop',event)" ondragleave="dzEv('split','out',event)">
+        <input type="file" accept=".pdf" onchange="addF('split',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez votre PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-split"></div>
+      <div class="ob" id="ob-split">
+        <div class="ob-row">
+          <div class="ob-title">Mode de division</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'split','mode')">Toutes les pages</div>
+            <div class="chip" onclick="selC(this,'split','mode')">Par intervalles</div>
+            <div class="chip" onclick="selC(this,'split','mode')">Pages spécifiques</div>
+          </div>
+        </div>
+        <div class="ob-row" id="split-range-row" style="display:none">
+          <div class="ob-title">Plage de pages (ex: 1-3, 5, 7-9)</div>
+          <input class="inp" type="text" placeholder="1-3, 5, 7-9">
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-split" onclick="run('split')" disabled>
+          <svg width="15" height="15"><use href="#ic-split"/></svg> Diviser
+        </button>
+        <button class="btn-cl" onclick="clr('split')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-split"><div class="pt"><div class="pf" id="pf-split"></div></div><div class="pm" id="pm-split">Traitement…</div></div>
+      <div class="sc" id="sc-split">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Division terminée</h4><p id="si-split">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger ZIP</a>
+      </div>
+      <div class="nudge" id="nd-split"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- ROTATE -->
+    <div class="panel" id="p-rotate">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-rotate"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Rotation de pages</h1>
+          <p>Faites pivoter toutes les pages ou seulement certaines.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-rotate" ondragover="dzEv('rotate','over',event)" ondrop="dzEv('rotate','drop',event)" ondragleave="dzEv('rotate','out',event)">
+        <input type="file" accept=".pdf" onchange="addF('rotate',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez votre PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-rotate"></div>
+      <div class="ob" id="ob-rotate">
+        <div class="ob-row">
+          <div class="ob-title">Angle de rotation</div>
+          <div class="rotate-grid">
+            <div class="ropt sel" onclick="selRot(this)">
+              <div class="ropt-icon"><svg width="20" height="20"><use href="#ic-rotatecw"/></svg></div>
+              <div class="ropt-label">90° droite</div>
+            </div>
+            <div class="ropt" onclick="selRot(this)">
+              <div class="ropt-icon"><svg width="20" height="20"><use href="#ic-rotateccw"/></svg></div>
+              <div class="ropt-label">90° gauche</div>
+            </div>
+            <div class="ropt" onclick="selRot(this)">
+              <div class="ropt-icon"><svg width="20" height="20"><use href="#ic-flip"/></svg></div>
+              <div class="ropt-label">180°</div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Pages concernées</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'rotate','pages')">Toutes les pages</div>
+            <div class="chip" onclick="selC(this,'rotate','pages')">Pages paires</div>
+            <div class="chip" onclick="selC(this,'rotate','pages')">Pages impaires</div>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-rotate" onclick="run('rotate')" disabled>
+          <svg width="15" height="15"><use href="#ic-rotate"/></svg> Faire pivoter
+        </button>
+        <button class="btn-cl" onclick="clr('rotate')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-rotate"><div class="pt"><div class="pf" id="pf-rotate"></div></div><div class="pm" id="pm-rotate">Traitement…</div></div>
+      <div class="sc" id="sc-rotate">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Rotation appliquée</h4><p id="si-rotate">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-rotate"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- COMPRESS -->
+    <div class="panel" id="p-compress">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-compress"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Compresser un PDF</h1>
+          <p>Réduisez la taille du fichier sans perdre la qualité de lecture.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-compress" ondragover="dzEv('compress','over',event)" ondrop="dzEv('compress','drop',event)" ondragleave="dzEv('compress','out',event)">
+        <input type="file" accept=".pdf" multiple onchange="addF('compress',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez vos PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-compress"></div>
+      <div class="ob" id="ob-compress">
+        <div class="ob-row">
+          <div class="ob-title">Niveau de compression</div>
+          <div class="slider-row">
+            <input type="range" min="0" max="2" value="1" id="sl-compress" oninput="updSlider()">
+            <span class="slider-val" id="sv-compress">Moyen — équilibré</span>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-compress" onclick="run('compress')" disabled>
+          <svg width="15" height="15"><use href="#ic-compress"/></svg> Compresser
+        </button>
+        <button class="btn-cl" onclick="clr('compress')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-compress"><div class="pt"><div class="pf" id="pf-compress"></div></div><div class="pm" id="pm-compress">Traitement…</div></div>
+      <div class="sc" id="sc-compress">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Compression réussie</h4><p id="si-compress">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-compress"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- WATERMARK -->
+    <div class="panel" id="p-watermark">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-watermark"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Ajouter un filigrane</h1>
+          <p>Apposez un texte personnalisé en transparence sur vos PDF.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-watermark" ondragover="dzEv('watermark','over',event)" ondrop="dzEv('watermark','drop',event)" ondragleave="dzEv('watermark','out',event)">
+        <input type="file" accept=".pdf" multiple onchange="addF('watermark',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez vos PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-watermark"></div>
+      <div class="ob" id="ob-watermark">
+        <div class="ob-row">
+          <div class="ob-title">Texte du filigrane</div>
+          <input class="inp" type="text" id="wm-text" placeholder="CONFIDENTIEL" oninput="updWM()" value="CONFIDENTIEL">
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Opacité</div>
+          <div class="slider-row">
+            <input type="range" min="10" max="80" value="25" id="sl-wm" oninput="updWM()">
+            <span class="slider-val" id="sv-wm">25%</span>
+          </div>
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Position</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'watermark','pos')">Centre diagonal</div>
+            <div class="chip" onclick="selC(this,'watermark','pos')">Centre</div>
+            <div class="chip" onclick="selC(this,'watermark','pos')">Coin bas-droit</div>
+          </div>
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Aperçu</div>
+          <div class="wm-preview">
+            <div class="wm-text" id="wm-preview-text">CONFIDENTIEL</div>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-watermark" onclick="run('watermark')" disabled>
+          <svg width="15" height="15"><use href="#ic-watermark"/></svg> Appliquer
+        </button>
+        <button class="btn-cl" onclick="clr('watermark')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-watermark"><div class="pt"><div class="pf" id="pf-watermark"></div></div><div class="pm" id="pm-watermark">Traitement…</div></div>
+      <div class="sc" id="sc-watermark">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Filigrane appliqué</h4><p id="si-watermark">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-watermark"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- PDF2JPG -->
+    <div class="panel" id="p-pdf2jpg">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-pdf2jpg"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>PDF en JPG</h1>
+          <p>Convertissez chaque page de votre PDF en image haute résolution.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-pdf2jpg" ondragover="dzEv('pdf2jpg','over',event)" ondrop="dzEv('pdf2jpg','drop',event)" ondragleave="dzEv('pdf2jpg','out',event)">
+        <input type="file" accept=".pdf" multiple onchange="addF('pdf2jpg',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez vos PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-pdf2jpg"></div>
+      <div class="ob" id="ob-pdf2jpg">
+        <div class="ob-row">
+          <div class="ob-title">Résolution</div>
+          <div class="chips">
+            <div class="chip" onclick="selC(this,'pdf2jpg','dpi')">72 DPI</div>
+            <div class="chip sel" onclick="selC(this,'pdf2jpg','dpi')">150 DPI</div>
+            <div class="chip" onclick="selC(this,'pdf2jpg','dpi')">300 DPI</div>
+          </div>
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Format de sortie</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'pdf2jpg','fmt')">JPG</div>
+            <div class="chip" onclick="selC(this,'pdf2jpg','fmt')">PNG</div>
+            <div class="chip" onclick="selC(this,'pdf2jpg','fmt')">WebP</div>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-pdf2jpg" onclick="run('pdf2jpg')" disabled>
+          <svg width="15" height="15"><use href="#ic-pdf2jpg"/></svg> Convertir
+        </button>
+        <button class="btn-cl" onclick="clr('pdf2jpg')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-pdf2jpg"><div class="pt"><div class="pf" id="pf-pdf2jpg"></div></div><div class="pm" id="pm-pdf2jpg">Traitement…</div></div>
+      <div class="sc" id="sc-pdf2jpg">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Conversion terminée</h4><p id="si-pdf2jpg">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger ZIP</a>
+      </div>
+      <div class="nudge" id="nd-pdf2jpg"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- JPG2PDF -->
+    <div class="panel" id="p-jpg2pdf">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-jpg2pdf"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>JPG en PDF</h1>
+          <p>Assemblez vos images en un seul fichier PDF ordonné.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-jpg2pdf" ondragover="dzEv('jpg2pdf','over',event)" ondrop="dzEv('jpg2pdf','drop',event)" ondragleave="dzEv('jpg2pdf','out',event)">
+        <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onchange="addF('jpg2pdf',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-image"/></svg></div>
+        <h3>Déposez vos images ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">JPG</span><span class="fmt-tag">PNG</span><span class="fmt-tag">WebP</span></div>
+      </div>
+      <div class="fl" id="fl-jpg2pdf"></div>
+      <div class="ob" id="ob-jpg2pdf">
+        <div class="ob-row">
+          <div class="ob-title">Format de page</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'jpg2pdf','page')">A4</div>
+            <div class="chip" onclick="selC(this,'jpg2pdf','page')">Lettre US</div>
+            <div class="chip" onclick="selC(this,'jpg2pdf','page')">Ajuster à l'image</div>
+          </div>
+        </div>
+        <div class="ob-row">
+          <div class="toggle-row">
+            <label>Marges automatiques</label>
+            <label class="toggle-wrap"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-jpg2pdf" onclick="run('jpg2pdf')" disabled>
+          <svg width="15" height="15"><use href="#ic-jpg2pdf"/></svg> Créer le PDF
+        </button>
+        <button class="btn-cl" onclick="clr('jpg2pdf')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-jpg2pdf"><div class="pt"><div class="pf" id="pf-jpg2pdf"></div></div><div class="pm" id="pm-jpg2pdf">Traitement…</div></div>
+      <div class="sc" id="sc-jpg2pdf">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>PDF créé</h4><p id="si-jpg2pdf">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-jpg2pdf"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- PDF2WORD -->
+    <div class="panel" id="p-pdf2word">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-pdf2word"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>PDF en Word</h1>
+          <p>Convertissez vos PDF en documents .docx éditables.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-pdf2word" ondragover="dzEv('pdf2word','over',event)" ondrop="dzEv('pdf2word','drop',event)" ondragleave="dzEv('pdf2word','out',event)">
+        <input type="file" accept=".pdf" multiple onchange="addF('pdf2word',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez vos PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-pdf2word"></div>
+      <div class="ob" id="ob-pdf2word">
+        <div class="ob-row">
+          <div class="ob-title">Mode de conversion</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'pdf2word','mode')">Texte + mise en forme</div>
+            <div class="chip" onclick="selC(this,'pdf2word','mode')">Texte brut</div>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-pdf2word" onclick="run('pdf2word')" disabled>
+          <svg width="15" height="15"><use href="#ic-pdf2word"/></svg> Convertir
+        </button>
+        <button class="btn-cl" onclick="clr('pdf2word')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-pdf2word"><div class="pt"><div class="pf" id="pf-pdf2word"></div></div><div class="pm" id="pm-pdf2word">Traitement…</div></div>
+      <div class="sc" id="sc-pdf2word">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>Conversion terminée</h4><p id="si-pdf2word">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger .docx</a>
+      </div>
+      <div class="nudge" id="nd-pdf2word"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- PROTECT -->
+    <div class="panel" id="p-protect">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-protect"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Protéger un PDF</h1>
+          <p>Verrouillez votre PDF avec un mot de passe.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-protect" ondragover="dzEv('protect','over',event)" ondrop="dzEv('protect','drop',event)" ondragleave="dzEv('protect','out',event)">
+        <input type="file" accept=".pdf" onchange="addF('protect',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez votre PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-protect"></div>
+      <div class="ob" id="ob-protect">
+        <div class="ob-row">
+          <div class="ob-title">Mot de passe</div>
+          <input class="inp" type="password" placeholder="Entrez un mot de passe fort">
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Confirmer le mot de passe</div>
+          <input class="inp" type="password" placeholder="Répétez le mot de passe">
+        </div>
+        <div class="ob-row">
+          <div class="ob-title">Permissions</div>
+          <div class="chips">
+            <div class="chip sel" onclick="selC(this,'protect','perm')">Lecture seule</div>
+            <div class="chip" onclick="selC(this,'protect','perm')">Autoriser l'impression</div>
+            <div class="chip" onclick="selC(this,'protect','perm')">Autoriser la copie</div>
+          </div>
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-protect" onclick="run('protect')" disabled>
+          <svg width="15" height="15"><use href="#ic-protect"/></svg> Protéger
+        </button>
+        <button class="btn-cl" onclick="clr('protect')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-protect"><div class="pt"><div class="pf" id="pf-protect"></div></div><div class="pm" id="pm-protect">Traitement…</div></div>
+      <div class="sc" id="sc-protect">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>PDF protégé</h4><p id="si-protect">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-protect"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+    <!-- UNLOCK -->
+    <div class="panel" id="p-unlock">
+      <div class="ph">
+        <div class="ph-icon"><svg width="22" height="22"><use href="#ic-unlock"/></svg></div>
+        <div class="ph-body">
+          <button class="ph-back" onclick="show('home')"><svg width="14" height="14"><use href="#ic-arrowleft"/></svg> Accueil</button>
+          <h1>Déverrouiller un PDF</h1>
+          <p>Supprimez la protection par mot de passe d'un PDF que vous possédez.</p>
+        </div>
+      </div>
+      <div class="dz" id="dz-unlock" ondragover="dzEv('unlock','over',event)" ondrop="dzEv('unlock','drop',event)" ondragleave="dzEv('unlock','out',event)">
+        <input type="file" accept=".pdf" onchange="addF('unlock',this.files)">
+        <div class="dz-icon"><svg width="24" height="24"><use href="#ic-file"/></svg></div>
+        <h3>Déposez votre PDF ici</h3><p>ou cliquez pour parcourir</p>
+        <div class="dz-hint"><span class="fmt-tag">PDF</span></div>
+      </div>
+      <div class="fl" id="fl-unlock"></div>
+      <div class="ob" id="ob-unlock">
+        <div class="ob-row">
+          <div class="ob-title">Mot de passe actuel (si connu)</div>
+          <input class="inp" type="password" placeholder="Facultatif — laisser vide si inconnu">
+        </div>
+      </div>
+      <div class="ar">
+        <button class="btn-run" id="r-unlock" onclick="run('unlock')" disabled>
+          <svg width="15" height="15"><use href="#ic-unlock"/></svg> Déverrouiller
+        </button>
+        <button class="btn-cl" onclick="clr('unlock')">Effacer</button>
+        <span class="fn">∞ fichiers · gratuit</span>
+      </div>
+      <div class="pw" id="pw-unlock"><div class="pt"><div class="pf" id="pf-unlock"></div></div><div class="pm" id="pm-unlock">Traitement…</div></div>
+      <div class="sc" id="sc-unlock">
+        <div class="sc-icon"><svg width="22" height="22"><use href="#ic-check"/></svg></div>
+        <div class="sc-info"><h4>PDF déverrouillé</h4><p id="si-unlock">–</p></div>
+        <a class="btn-dl" href="#"><svg width="14" height="14"><use href="#ic-download"/></svg> Télécharger</a>
+      </div>
+      <div class="nudge" id="nd-unlock"><a onclick="openLogin('register')">Créez un compte gratuit</a> pour retrouver vos fichiers traités.</div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()"><svg width="14" height="14"><use href="#ic-x"/></svg></button>
+    <span class="modal-badge">Facultatif</span>
+    <h2 id="auth-title">Créer un compte</h2>
+    <p class="sub" id="auth-sub">Un compte vous permet de retrouver l'historique de vos fichiers traités. Vous pouvez continuer sans compte.</p>
+    <div class="ig"><label>Adresse e-mail</label><input class="inp" type="email" placeholder="vous@exemple.com"></div>
+    <div class="ig" id="auth-name-row"><label>Prénom (optionnel)</label><input class="inp" type="text" placeholder="Votre prénom"></div>
+    <div class="ig"><label>Mot de passe</label><input class="inp" type="password" placeholder="••••••••"></div>
+    <button class="btn-full" id="auth-btn">Créer mon compte gratuit</button>
+    <div class="modal-skip">Pas maintenant — <a onclick="closeAuth()">continuer sans compte</a></div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────
+// Change this to your deployed backend URL, e.g. https://pdflibre-api.railway.app
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : '';  // same origin when frontend is served by backend
+
+const store = {};
+const cLabels = ['Faible — meilleure qualité','Moyen — équilibré','Élevé — fichier plus petit'];
+
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.s-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  const n = document.getElementById('n-' + id);
+  if (n) n.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function dzEv(t, a, e) {
+  const el = document.getElementById('dz-' + t);
+  if (a === 'over') { e.preventDefault(); el.classList.add('over'); }
+  else if (a === 'out') el.classList.remove('over');
+  else if (a === 'drop') { e.preventDefault(); el.classList.remove('over'); addF(t, e.dataTransfer.files); }
+}
+
+function addF(t, files) {
+  if (!store[t]) store[t] = [];
+  Array.from(files).forEach(f => { if (!store[t].find(x => x.name === f.name)) store[t].push(f); });
+  renderF(t);
+}
+
+function renderF(t) {
+  const fl = document.getElementById('fl-' + t);
+  const files = store[t] || [];
+  const isImg = t === 'jpg2pdf';
+  fl.innerHTML = files.map((f, i) => `
+    <div class="frow">
+      <div class="frow-icon">
+        <svg width="16" height="16"><use href="${isImg ? '#ic-image' : '#ic-file'}"/></svg>
+      </div>
+      <div class="frow-info">
+        <div class="frow-name">${f.name}</div>
+        <div class="frow-meta">${fmt(f.size)}</div>
+      </div>
+      <button class="frow-rm" onclick="rmF('${t}',${i})" title="Supprimer">
+        <svg width="12" height="12"><use href="#ic-x"/></svg>
+      </button>
+    </div>`).join('');
+  const min = t === 'merge' ? 2 : 1;
+  document.getElementById('r-' + t).disabled = files.length < min;
+  const ob = document.getElementById('ob-' + t);
+  if (ob) ob.classList.toggle('show', files.length > 0);
+}
+
+function rmF(t, i) { store[t].splice(i, 1); renderF(t); }
+
+function fmt(b) {
+  if (b < 1024) return b + ' o';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' Ko';
+  return (b/1048576).toFixed(2) + ' Mo';
+}
+
+function selC(el, t, group) {
+  el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  if (t === 'split' && group === 'mode') {
+    const row = document.getElementById('split-range-row');
+    if (row) row.style.display = (el.textContent.includes('intervalles') || el.textContent.includes('spécifiques')) ? 'block' : 'none';
+  }
+}
+
+function selRot(el) {
+  document.querySelectorAll('.ropt').forEach(r => r.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function updSlider() {
+  const v = document.getElementById('sl-compress').value;
+  document.getElementById('sv-compress').textContent = cLabels[v];
+}
+
+function updWM() {
+  const txt = document.getElementById('wm-text').value || 'FILIGRANE';
+  const op = document.getElementById('sl-wm').value;
+  document.getElementById('sv-wm').textContent = op + '%';
+  const preview = document.getElementById('wm-preview-text');
+  preview.textContent = txt;
+  preview.style.opacity = op / 100;
+}
+
+// ─── BUILD FORMDATA PER TOOL ──────────────────────────────────────────────
+function buildForm(t) {
+  const fd = new FormData();
+  const files = store[t] || [];
+
+  // attach files
+  files.forEach(f => fd.append('files', f));
+  if (files.length === 1) fd.append('file', files[0]); // some endpoints use singular
+
+  // tool-specific options
+  if (t === 'split') {
+    const sel = document.querySelector('#ob-split .chip.sel');
+    const mode = sel?.textContent.includes('intervalles') ? 'range'
+               : sel?.textContent.includes('spécifiques') ? 'specific' : 'all';
+    fd.append('mode', mode);
+    const rangeInp = document.getElementById('split-range-inp');
+    if (rangeInp?.value) fd.append('pages', rangeInp.value);
+  }
+  if (t === 'compress') {
+    const v = document.getElementById('sl-compress')?.value || '1';
+    fd.append('level', v);
+  }
+  if (t === 'rotate') {
+    const selOpt = document.querySelector('.ropt.sel .ropt-label')?.textContent || '90° droite';
+    const angle = selOpt.includes('gauche') ? -90 : selOpt.includes('180') ? 180 : 90;
+    fd.append('angle', angle);
+    const pSel = document.querySelector('#ob-rotate .chip.sel');
+    const target = pSel?.textContent.includes('paires') ? 'even'
+                 : pSel?.textContent.includes('impaires') ? 'odd' : 'all';
+    fd.append('target', target);
+  }
+  if (t === 'pdf2jpg') {
+    const dpiSel = document.querySelector('#ob-pdf2jpg .chips:first-of-type .chip.sel');
+    const dpi = dpiSel ? parseInt(dpiSel.textContent) : 150;
+    const fmtSel = document.querySelector('#ob-pdf2jpg .chips:last-of-type .chip.sel');
+    const fmt = (fmtSel?.textContent || 'jpg').toLowerCase();
+    fd.append('dpi', dpi);
+    fd.append('fmt', fmt);
+  }
+  if (t === 'jpg2pdf') {
+    const pSel = document.querySelector('#ob-jpg2pdf .chip.sel');
+    const pg = pSel?.textContent.includes('Lettre') ? 'letter'
+             : pSel?.textContent.includes('image') ? 'fit' : 'a4';
+    fd.append('page_format', pg);
+    const tog = document.querySelector('#ob-jpg2pdf input[type=checkbox]');
+    fd.append('margins', tog?.checked ? 'true' : 'false');
+  }
+  if (t === 'watermark') {
+    fd.append('text', document.getElementById('wm-text')?.value || 'CONFIDENTIEL');
+    fd.append('opacity', document.getElementById('sl-wm')?.value || '25');
+    const posSel = document.querySelector('#ob-watermark .chip.sel');
+    fd.append('position', posSel?.textContent.includes('droit') ? 'bottomright'
+      : posSel?.textContent.includes('Centre') && !posSel.textContent.includes('diag') ? 'center' : 'diagonal');
+  }
+  if (t === 'protect') {
+    const pw = document.querySelector('#ob-protect input[type=password]');
+    fd.append('password', pw?.value || '');
+    const permSel = document.querySelector('#ob-protect .chip.sel');
+    const perms = permSel?.textContent.includes('impression') ? 'print'
+                : permSel?.textContent.includes('copie') ? 'copy' : 'readonly';
+    fd.append('permissions', perms);
+  }
+  if (t === 'unlock') {
+    const pw = document.querySelector('#ob-unlock input[type=password]');
+    fd.append('password', pw?.value || '');
+  }
+
+  return fd;
+}
+
+// ─── PROGRESS ANIMATION (while fetch runs) ──────────────────────────────────────────────
+function startProgress(t) {
+  const pf = document.getElementById('pf-' + t);
+  const pm = document.getElementById('pm-' + t);
+  let p = 0;
+  const iv = setInterval(() => {
+    // slow down as we approach 85% — waits for real response
+    const step = p < 70 ? Math.random() * 10 + 4 : Math.random() * 1.5;
+    p = Math.min(p + step, 85);
+    pf.style.width = p + '%';
+    pm.textContent = `Traitement… ${Math.floor(p)}%`;
+  }, 200);
+  return iv;
+}
+
+async function run(t) {
+  const btn = document.getElementById('r-' + t);
+  const pw  = document.getElementById('pw-' + t);
+  const pf  = document.getElementById('pf-' + t);
+  const pm  = document.getElementById('pm-' + t);
+  const sc  = document.getElementById('sc-' + t);
+  const nd  = document.getElementById('nd-' + t);
+  const si  = document.getElementById('si-' + t);
+  const dlBtn = sc?.querySelector('.btn-dl');
+
+  btn.disabled = true;
+  sc.classList.remove('show');
+  if (nd) nd.classList.remove('show');
+  pw.classList.add('show');
+
+  const iv = startProgress(t);
+
+  // map tool name → endpoint
+  const endpointMap = {
+    merge: 'merge', split: 'split', compress: 'compress',
+    rotate: 'rotate', pdf2jpg: 'pdf2jpg', jpg2pdf: 'jpg2pdf',
+    watermark: 'watermark', protect: 'protect', unlock: 'protect',
+    pdf2word: 'pdf2word',
+  };
+  const endpoint = endpointMap[t] || t;
+
+  try {
+    const fd = buildForm(t);
+    const resp = await fetch(`${API_BASE}/api/${endpoint}`, {
+      method: 'POST',
+      body: fd,
+    });
+
+    clearInterval(iv);
+
+    if (!resp.ok) {
+      let msg = 'Erreur serveur';
+      try { const j = await resp.json(); msg = j.detail || msg; } catch {}
+      throw new Error(msg);
+    }
+
+    // ── success: create object URL for download ──
+    pf.style.width = '100%';
+    pm.textContent = 'Finalisation…';
+
+    const blob = await resp.blob();
+    const url  = URL.createObjectURL(blob);
+
+    // guess filename from Content-Disposition or fallback
+    const cd = resp.headers.get('content-disposition') || '';
+    const fnMatch = cd.match(/filename[^;=\n]*=['"]?([^'"\n;]+)/);
+    const filename = fnMatch ? fnMatch[1] : `${t}_output.${blob.type.includes('zip') ? 'zip' : 'pdf'}`;
+
+    if (dlBtn) {
+      dlBtn.href = url;
+      dlBtn.download = filename;
+    }
+
+    setTimeout(() => {
+      pw.classList.remove('show');
+      pf.style.width = '0%';
+      pm.textContent = 'Traitement…';
+      sc.classList.add('show');
+      if (nd) nd.classList.add('show');
+      btn.disabled = false;
+      if (si) si.textContent = (store[t] || []).map(f => f.name).join(', ') || filename;
+    }, 300);
+
+  } catch (err) {
+    clearInterval(iv);
+    pw.classList.remove('show');
+    pf.style.width = '0%';
+    pm.textContent = 'Traitement…';
+    btn.disabled = false;
+    showError(t, err.message);
+  }
+}
+
+function showError(t, msg) {
+  const sc = document.getElementById('sc-' + t);
+  if (!sc) return;
+  sc.style.background = 'var(--accent-light)';
+  sc.style.borderColor = 'var(--accent-border)';
+  sc.innerHTML = `
+    <div class="sc-icon" style="color:var(--accent)"><svg width="22" height="22"><use href="#ic-info"/></svg></div>
+    <div class="sc-info"><h4 style="color:var(--accent)">Erreur</h4><p>${msg}</p></div>
+  `;
+  sc.classList.add('show');
+  setTimeout(() => {
+    sc.style.background = '';
+    sc.style.borderColor = '';
+  }, 4000);
+}
+
+function clr(t) {
+  store[t] = [];
+  renderF(t);
+  const sc = document.getElementById('sc-' + t);
+  const pw = document.getElementById('pw-' + t);
+  const nd = document.getElementById('nd-' + t);
+  if (sc) sc.classList.remove('show');
+  if (pw) pw.classList.remove('show');
+  if (nd) nd.classList.remove('show');
+}
+
+function openLogin(mode) {
+  const isLogin = mode === 'login';
+  document.getElementById('auth-title').textContent = isLogin ? 'Se connecter' : 'Créer un compte';
+  document.getElementById('auth-sub').textContent = isLogin
+    ? 'Retrouvez l\'historique de vos fichiers traités.'
+    : 'Un compte vous permet de retrouver vos fichiers. Vous pouvez continuer sans compte.';
+  document.getElementById('auth-btn').textContent = isLogin ? 'Se connecter' : 'Créer mon compte gratuit';
+  document.getElementById('auth-name-row').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('authOverlay').classList.add('open');
+}
+
+function closeAuth() { document.getElementById('authOverlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+</script>
+</body>
+</html>
